@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 inputDocuments:
   - "_bmad-output/planning-artifacts/product-brief-portail-mediatheque-conviale.md"
   - "_bmad-output/planning-artifacts/product-brief-portail-mediatheque-conviale-distillate.md"
@@ -522,3 +522,446 @@ flowchart TD
 2. **No dead ends:** Every error state has an immediate recovery action visible without scrolling
 3. **State preservation on back:** Catalog scroll position persists across detail navigation
 4. **Admin flow is linear:** Scan → fill → note → save. No branching on the happy path.
+
+## Component Strategy
+
+### Design System Components (Angular Material M3)
+
+Les composants suivants sont disponibles nativement dans Angular Material et utilisés sans personnalisation structurelle :
+
+| Composant Angular Material | Usage dans le portail |
+|---|---|
+| `mat-card` | Base pour les cartes de livres (list items et feature cards) |
+| `mat-form-field` + `mat-input` | Champs ISBN, titre, auteur, note curateur dans l'admin |
+| `mat-chip` / `mat-chip-set` | Filtres actifs, badges genre, puce "Sélection du mois" |
+| `mat-fab` (extended) | Bouton "Ajouter un livre" flottant dans l'admin |
+| `mat-slide-toggle` | Toggle "Sélection du mois" dans le formulaire admin |
+| `mat-snack-bar` | Feedback de confirmation (sauvegarde, suppression, scan réussi) |
+| `mat-dialog` | Modale de confirmation de suppression |
+| `mat-icon` | Icônes système (search, edit, delete, camera, check) |
+| `mat-toolbar` | App bar public + app bar admin |
+| `mat-progress-spinner` | Chargement auto-fill ISBN, chargement catalogue |
+| `mat-select` | Filtre par genre dans la barre de filtres |
+| `mat-button` / `mat-icon-button` | Actions admin (modifier, supprimer, se déconnecter) |
+
+**Couverture :** Angular Material couvre entièrement les primitives de formulaire, navigation et feedback. Les gaps sont concentrés sur les composants métier spécifiques à la médiathèque.
+
+### Custom Components
+
+#### `BookListItemComponent`
+
+**Purpose:** Afficher un livre dans la liste du catalogue public — l'unité de base de la découverte.
+
+**Usage:** Catalogue public, résultats de recherche, liste admin (variante compact).
+
+**Anatomy:**
+```
+[Cover 72×100px] | [Title (Title medium, bold)]
+                 | [Author · Genre · Année (Body medium, muted)]
+                 | [Curator note preview — 2 lignes, italique, tronquées]
+```
+
+**States:**
+- Default — affichage normal
+- Hover/focus — légère élévation (`elevation-1`), curseur pointer
+- No cover — placeholder warm grey (`#E8E3DD`) avec icône livre centré
+- Loading — skeleton shimmer sur cover et lignes de texte
+
+**Variants:**
+- `default` — avec note curateur preview (catalogue public)
+- `compact` — sans note preview (liste admin)
+
+**Accessibility:** `role="article"`, lien englobant l'item entier avec `aria-label="[Titre] par [Auteur]"`, titre en `h3`.
+
+**Content Guidelines:** La note curateur est tronquée à 2 lignes — elle suscite l'envie sans tout révéler ; le detail page la montre en intégralité.
+
+---
+
+#### `SelectionDuMoisCardComponent`
+
+**Purpose:** Mettre en valeur la sélection éditoriale du mois sur la homepage — le hero visuel de la page.
+
+**Usage:** Homepage uniquement, au-dessus du catalogue.
+
+**Anatomy:**
+```
+[Badge pill "Sélection du mois" — terracotta background]
+[Cover 120×165px, ombre portée légère]
+[Titre (Title large, bold)]
+[Auteur (Body medium, muted)]
+[Note curateur complète (Body large, italique, couleur terracotta clair)]
+[→ Voir le livre — lien discret, underline]
+```
+
+**States:**
+- Single book — card pleine largeur centrée
+- Multiple books — scroll horizontal (scroll snap) sur mobile, grille 2-col sur desktop
+- Empty — section entière absente du DOM si aucun livre marqué
+
+**Accessibility:** `role="region"` avec `aria-label="Sélection du mois"`, image cover avec `alt="Couverture de [Titre]"`.
+
+---
+
+#### `IsbnScanOverlayComponent`
+
+**Purpose:** Interface de scan de code-barres ISBN dans le navigateur — expérience clé du workflow admin.
+
+**Usage:** Écran d'ajout de livre, admin uniquement.
+
+**Anatomy:**
+```
+[Viewfinder carré centré, coins arrondis terracotta]
+[Ligne de scan animée — haut → bas en boucle]
+[Texte guide: "Pointez vers le code-barres ISBN"]
+[Bouton secondaire: "Saisir l'ISBN manuellement"]
+[Feedback succès: overlay vert + ✓ + ISBN affiché 1 seconde]
+```
+
+**States:**
+- Scanning — caméra active, animation de scan en cours
+- Success — flash vert + ISBN affiché brièvement avant auto-fill du formulaire
+- Error (no camera) — message informatif + bascule automatique vers saisie manuelle
+- Timeout (30s) — suggestion discrète de saisir manuellement
+
+**Accessibility:** `aria-live="polite"` pour annoncer le succès ou l'erreur. Bouton fallback toujours visible et accessible.
+
+**Technical Note:** `BarcodeDetector` Web API (Chromium 2024+) en priorité ; ZXing-js en fallback navigateur.
+
+---
+
+#### `BookCoverComponent`
+
+**Purpose:** Afficher la couverture d'un livre avec fallback élégant si l'URL est manquante ou cassée.
+
+**Usage:** `BookListItemComponent`, `SelectionDuMoisCardComponent`, page de détail, formulaire admin.
+
+**Anatomy:**
+```
+<img src="coverUrl" alt="Couverture de [Titre]" />
+  — ou, si erreur/absent —
+<div placeholder> icône livre + fond primary-container warm </div>
+```
+
+**States:**
+- Loaded — image affichée, ratio 2:3 respecté (`object-fit: cover`)
+- Loading — skeleton shimmer
+- Error / No URL — placeholder illustratif couleur chaude, jamais d'icône image cassée
+
+**Variants:** `size="small"` (64×88px), `size="medium"` (96×132px), `size="large"` (120×165px).
+
+**Accessibility:** `alt="Couverture de [Titre]"` ; `alt=""` si l'item parent porte déjà le label complet.
+
+---
+
+#### `FilterBarComponent`
+
+**Purpose:** Permettre la recherche et le filtrage du catalogue en une seule ligne d'interface.
+
+**Usage:** Catalogue public uniquement.
+
+**Anatomy:**
+```
+[Search input pleine largeur — "Rechercher un livre..."]
+[Chip "Genre ▾"] [Chip "Année ▾"] [Chip "× Effacer" — visible si filtre actif]
+```
+
+**States:**
+- Idle — input vide, chips sans valeur
+- Active filter — chip avec valeur sélectionnée, style `primary` rempli
+- Results found — catalogue filtré mis à jour en temps réel
+- No results — message "Aucun livre trouvé pour cette recherche" avec bouton "Effacer les filtres"
+
+**Accessibility:** `role="search"`, input avec `aria-label="Rechercher dans le catalogue"`, chips avec état `aria-pressed`.
+
+---
+
+### Component Implementation Strategy
+
+**Principe directeur :** Tous les composants personnalisés utilisent exclusivement les CSS custom properties du thème Angular Material M3 — aucune valeur de couleur ou d'espacement en dur. Cela garantit la cohérence visuelle et facilite un éventuel rebranding.
+
+**Structure des fichiers :**
+```
+src/app/
+  shared/
+    components/
+      book-list-item/           ← BookListItemComponent
+      selection-du-mois-card/   ← SelectionDuMoisCardComponent
+      isbn-scan-overlay/        ← IsbnScanOverlayComponent
+      book-cover/               ← BookCoverComponent
+      filter-bar/               ← FilterBarComponent
+```
+
+**Architecture :** Tous les composants partagés sont des **standalone components** Angular 17+, exportés individuellement. Pas de `SharedModule`.
+
+**Styling :** CSS custom properties héritées du thème M3 pour les couleurs et espacements. SCSS uniquement pour les helpers structurels (flex, grid, clamp).
+
+### Implementation Roadmap
+
+**Phase 1 — Composants critiques public (sprint 1)**
+
+| Composant | Justification |
+|---|---|
+| `BookCoverComponent` | Utilisé dans tous les autres composants — blocker |
+| `BookListItemComponent` | Corps du catalogue — parcours Karim et Sophie |
+| `FilterBarComponent` | Découvrabilité — critère de succès core |
+| `SelectionDuMoisCardComponent` | Premier élément visible à l'ouverture du portail |
+
+**Phase 2 — Composants admin (sprint 2)**
+
+| Composant | Justification |
+|---|---|
+| `IsbnScanOverlayComponent` | Parcours animateur — objectif 60 secondes |
+| Formulaire admin (Angular Material natif) | CRUD complet — composants Material suffisants |
+
+**Phase 3 — Affinements (sprint 3+)**
+
+| Composant | Justification |
+|---|---|
+| Skeleton loaders dans `BookListItemComponent` | Perception de performance sur 4G |
+| États vides illustrés | Catalogue vide, aucun résultat de recherche |
+| Animation scan success dans `IsbnScanOverlayComponent` | Feedback visuel rassurant et mémorable |
+
+## UX Consistency Patterns
+
+### Button Hierarchy
+
+**Règle principale :** Une seule action primaire par écran. Les actions secondaires et destructives ont des styles distincts.
+
+| Niveau | Style | Usage |
+|---|---|---|
+| **Primary** | `mat-raised-button`, fond terracotta | Action principale : "Enregistrer", "Se connecter", "Rechercher" |
+| **Secondary** | `mat-stroked-button`, outline terracotta | Action alternative : "Saisir manuellement", "Annuler" |
+| **Ghost** | `mat-button`, texte terracotta | Navigation discrète : "Voir le livre →", "Admin" |
+| **Destructive** | `mat-button` ou `mat-icon-button`, rouge `#B00020` | "Supprimer" — jamais primary, toujours confirmé via dialog |
+| **FAB** | `mat-fab` extended, terracotta | Une seule action globale par écran : "Ajouter un livre" |
+
+**Règles :**
+- Jamais deux boutons `mat-raised-button` côte à côte
+- Le bouton destructif n'est jamais le focus par défaut dans une dialog de confirmation
+- Sur mobile, les boutons pleine largeur si l'action est la seule sur l'écran (ex : "Se connecter")
+
+### Feedback Patterns
+
+**Snackbar (confirmations et actions réversibles) :**
+- Position : bas de l'écran, centré
+- Durée : 3 secondes (auto-dismiss), 6 secondes si action "Annuler" disponible
+- Exemples : "Livre ajouté ✓", "Livre supprimé", "Modifications enregistrées ✓"
+- Pas de snackbar pour les erreurs critiques — utiliser un inline error à la place
+
+**Inline errors (formulaires) :**
+- Sous le champ concerné, rouge `#B00020`, icône ⚠
+- Apparaît à la perte de focus (blur) ou à la soumission, jamais en cours de frappe
+- Exemple : "ISBN invalide — 13 chiffres attendus"
+
+**Page-level error (API indisponible) :**
+- Banner discret sous l'app bar : "Impossible de récupérer les métadonnées. Saisissez les informations manuellement."
+- Jamais un écran d'erreur complet — le formulaire reste utilisable
+
+**Scan feedback :**
+- Succès : overlay vert 1 seconde + vibration device (si disponible)
+- Échec : pas de notification intrusive — le bouton "Saisir manuellement" est toujours visible
+
+### Form Patterns
+
+**Disposition :**
+- Formulaires en colonne unique — jamais de layout multi-colonnes sur mobile
+- Labels au-dessus du champ (`mat-label` flottant) — pas de placeholders seuls
+- Largeur des champs : pleine largeur du conteneur sur mobile ; max 480px sur desktop
+
+**Validation :**
+- Validation en temps réel uniquement pour l'ISBN (longueur + format)
+- Tous les autres champs : validation à la soumission
+- Les champs optionnels sont étiquetés "(optionnel)" — pas d'astérisque pour les requis
+
+**Auto-fill (formulaire ISBN) :**
+- Champs pré-remplis mis en évidence visuellement 2 secondes (fond `#F4E4DC`) puis normalisés
+- `mat-progress-spinner` inline pendant la requête API
+- Tous les champs restent éditables après auto-fill — aucun champ en lecture seule
+
+**Ordre des champs dans le formulaire admin :**
+1. ISBN (scan ou saisie)
+2. Titre
+3. Auteur(s)
+4. Genre / Catégorie
+5. Année de publication
+6. Couverture (URL ou upload)
+7. Note du curateur ← focus automatique après auto-fill
+8. Sélection du mois (toggle)
+
+### Navigation Patterns
+
+**App bar publique :**
+- Logo/nom à gauche ("Médiathèque conviviale")
+- Lien "Admin" discret à droite (ghost button, texte seul)
+- Pas de hamburger menu — le portail n'a pas de navigation secondaire
+
+**App bar admin :**
+- Fond sombre (`#1A1A1A`) pour différenciation visuelle immédiate
+- Titre de la page courante au centre
+- Icône de déconnexion à droite
+
+**Retour en arrière :**
+- Bouton `←` dans l'app bar sur les pages de détail et d'édition
+- Retour vers la liste avec préservation du scroll (Angular Router scroll restoration)
+- Jamais de `window.history.back()` — toujours un lien de retour explicite
+
+**Routing :**
+- `/` → Homepage publique
+- `/livres/:id` → Détail d'un livre
+- `/admin` → Liste admin (route guardée)
+- `/admin/livres/nouveau` → Formulaire d'ajout
+- `/admin/livres/:id/modifier` → Formulaire d'édition
+- `/admin/login` → Authentification
+
+### Modal & Overlay Patterns
+
+**Confirmation de suppression (`mat-dialog`) :**
+- Titre : "Supprimer ce livre ?"
+- Corps : titre du livre entre guillemets pour contextualiser
+- Actions : "Annuler" (secondary, focus par défaut) | "Supprimer" (destructive rouge)
+- Jamais de suppression directe sans confirmation dialog
+
+**IsbnScanOverlay :**
+- Plein écran sur mobile — pas de dialog flottante
+- Fermeture : bouton ✕ en haut à droite, ou scan réussi (fermeture automatique)
+- Pas de tooltips : le portail est assez simple pour que les labels soient toujours visibles
+
+### Empty States & Loading States
+
+**États vides :**
+
+| Contexte | Message | Action proposée |
+|---|---|---|
+| Catalogue vide | "La médiathèque est vide pour l'instant." | Aucune (public) / "Ajouter un livre" (admin) |
+| Aucun résultat de recherche | "Aucun livre ne correspond à votre recherche." | Bouton "Effacer les filtres" |
+| Sélection du mois vide | Section absente — pas de message | N/A |
+
+**États de chargement :**
+- Catalogue : skeleton list de 3–4 items avec shimmer
+- Auto-fill ISBN : spinner inline dans les champs + label "Recherche en cours…"
+- Couverture : skeleton carré avant chargement de l'image
+- Transitions entre routes : pas de spinner de page — les composants gèrent leur propre état
+
+### Search & Filtering Patterns
+
+**Comportement :**
+- Recherche full-text : debounce 300ms — pas de bouton "Rechercher" pour le catalogue
+- Filtres genre/année : chips avec activation/désactivation par tap, résultats immédiats
+- Les filtres s'accumulent (AND logique)
+- Chip "× Effacer tout" visible dès qu'au moins un filtre est actif
+
+**URL state :** Les filtres actifs ne sont pas reflétés dans l'URL pour le MVP — état local au composant.
+
+**Empty filter state :** Si la combinaison donne 0 résultats, les chips restent actifs — l'utilisateur voit ce qu'il a sélectionné et peut le modifier sans que les filtres s'auto-retirent.
+
+## Responsive Design & Accessibility
+
+### Responsive Strategy
+
+**Approche mobile-first.** La majorité des employés découvrent le portail via QR code — sur téléphone. La conception part du petit écran et s'enrichit vers le grand.
+
+**Public catalog (priorité 1 — mobile) :**
+- Single column tout au long — pas de passage en grille sur desktop (60 livres ne justifient pas une grille)
+- Cover + texte en ligne horizontale sur tous les breakpoints — la disposition change de taille, pas de structure
+- `SelectionDuMoisCardComponent` pleine largeur sur mobile, max 600px centré sur desktop
+- Scroll vertical — l'utilisateur fait défiler, pas de pagination
+
+**Admin interface (priorité 2 — smartphone portrait) :**
+- Formulaire pleine largeur, single column obligatoire
+- Scan overlay plein écran sur mobile — le viewfinder a besoin de tout l'espace disponible
+- FAB positionné bas-droit, `position: fixed`, au-dessus du contenu scrollable
+
+**Desktop adaptation (bonus, pas critique) :**
+- Contenu centré avec `max-width: 800px` — pas de layout multi-colonnes
+- Hover states activés sur les book list items
+- Curseur pointer sur les éléments cliquables
+
+### Breakpoint Strategy
+
+Alignés sur les breakpoints Angular Material CDK par défaut :
+
+| Breakpoint | Plage | Comportement |
+|---|---|---|
+| **Mobile** | < 600px | Layout de base, covers 72×100px, marges 16px |
+| **Tablet** | 600px – 960px | Marges 24px, covers 96×132px, max-width 720px centré |
+| **Desktop** | > 960px | max-width 800px centré, hover states, covers inchangées |
+
+**Règle clé :** Les seuls changements cross-breakpoint sont les marges, la taille des covers, et le centrage du contenu. Pas de réorganisation structurelle — la hiérarchie visuelle est identique sur tous les écrans.
+
+**Media queries :** Mobile-first, `min-width` uniquement. Styles de base pour `< 600px` ; overrides à `≥ 600px` puis `≥ 960px`.
+
+### Accessibility Strategy
+
+**Niveau cible :** Pas de conformité WCAG formelle requise pour le MVP (décision explicite). Angular Material M3 constitue un socle solide par défaut.
+
+**Garanti by design :**
+
+| Critère | Implémentation |
+|---|---|
+| Contraste couleur | `#1A1A1A` sur `#F8F5F0` → ratio 14:1 ✓ ; `#B85C38` sur blanc → ratio 4.6:1 ✓ (AA) |
+| Touch targets | Angular Material garantit 44×44px minimum sur tous les composants interactifs |
+| Alt text images | `BookCoverComponent` injecte `alt="Couverture de [Titre]"` systématiquement |
+| Labels formulaires | `mat-label` flottant sur tous les champs — pas de placeholder-only |
+| Focus visible | Angular Material M3 — indicateur de focus natif activé |
+| Navigation clavier | `mat-chip-set`, `mat-form-field`, `mat-dialog` — clavier inclus nativement |
+
+**Non requis (décision explicite) :** skip links, support screen reader testé formellement, mode contraste élevé, WCAG AAA.
+
+**ARIA usage :**
+- `role="region"` + `aria-label` sur la section "Sélection du mois"
+- `aria-live="polite"` sur les feedbacks de scan ISBN
+- `aria-label` sur les `mat-icon-button` sans texte visible (modifier, supprimer)
+
+### Testing Strategy
+
+**Responsive testing :**
+- Chrome DevTools device emulation — iPhone 12/14, Samsung Galaxy S21, iPad
+- Test réel sur l'appareil du développeur avant lancement
+- Safari iOS — testé avant lancement (comportement caméra/BarcodeDetector à valider)
+- Firefox et Edge — smoke test visuel uniquement
+
+**ISBN scan testing spécifique :**
+- Test avec `BarcodeDetector` (Chrome/Edge) — livres réels de la médiathèque
+- Test ZXing-js fallback sur Safari iOS
+- Test en conditions de lumière variable (bibliothèque physique)
+- Validation du chemin fallback "saisie manuelle" sur mobile
+
+**Accessibilité (scope minimal) :**
+- Navigation clavier complète sur les formulaires admin — vérification manuelle
+- Vérification visuelle des contrastes sur le détail du livre
+- Pas d'audit automatisé (axe, Lighthouse) obligatoire pour le MVP
+
+### Implementation Guidelines
+
+**Responsive development :**
+
+```scss
+// Mobile-first breakpoints (Angular Material CDK)
+.page-container {
+  padding: 0 16px;            // mobile base
+  @media (min-width: 600px) { padding: 0 24px; max-width: 720px; margin: auto; }
+  @media (min-width: 960px) { max-width: 800px; }
+}
+// Tailles covers via BookCoverComponent @Input size — jamais en CSS ad hoc
+```
+
+**Unités CSS :**
+- `rem` pour la typographie (base 16px)
+- `px` pour les covers et espacements fixes (valeurs design system)
+- `%` ou `max-width` pour les conteneurs fluides
+- Jamais `px` pour la taille de police de base
+
+**Scan overlay :**
+- Toujours plein écran — `position: fixed; inset: 0`
+- `getUserMedia` demandé uniquement au tap "Scanner" — pas au chargement de la page
+- Détection `BarcodeDetector` → ZXing-js à l'initialisation du composant
+
+**Images :**
+- `object-fit: cover` sur toutes les couvertures — ratio 2:3 préservé
+- `loading="lazy"` sur les covers hors visible fold
+- Covers Open Library via CDN externe — pas de proxy backend (NFR3)
+
+**Focus management admin :**
+- Après auto-fill ISBN → focus automatique sur "Note du curateur"
+- Après sauvegarde → retour focus sur le FAB "Ajouter un livre"
+- Après fermeture dialog → focus retour sur l'élément déclencheur
