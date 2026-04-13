@@ -1,0 +1,15 @@
+# Local dev overrides — stub, completed in Story 1.4
+# Applied automatically by Docker Compose when running locally
+
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:5000"
+
+  frontend:
+    ports:
+      - "4200:80"

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:angular.dev)"
+      "WebFetch(domain:angular.dev)",
+      "Bash(npm --version)",
+      "Bash(ng version:*)",
+      "Bash(dotnet --version)",
+      "Bash(npm install:*)"
     ]
   }
 }

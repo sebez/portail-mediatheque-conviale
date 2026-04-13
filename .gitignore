@@ -1,0 +1,31 @@
+# Environment secrets — never commit .env
+.env
+
+# Node / Angular
+node_modules/
+frontend/dist/
+frontend/.angular/
+
+# .NET
+backend/bin/
+backend/obj/
+backend.Tests/bin/
+backend.Tests/obj/
+*.user
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.ide
+
+# OS
+.DS_Store
+Thumbs.db

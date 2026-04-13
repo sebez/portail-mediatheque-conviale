@@ -1,0 +1,12 @@
+<!-- UX-DR17: Public app bar — wordmark with terracotta accent on "conviviale", discreet Admin ghost button -->
+<mat-toolbar class="app-bar">
+  <a class="wordmark" routerLink="/" aria-label="Médiathèque conviviale — accueil">
+    <span>Médiathèque </span><span class="wordmark-accent">conviviale</span>
+  </a>
+  <span class="spacer"></span>
+  <a mat-button routerLink="/admin" class="admin-link">Admin</a>
+</mat-toolbar>
+
+<main>
+  <router-outlet />
+</main>

@@ -1,0 +1,36 @@
+// UX-DR17: App bar styles
+.app-bar {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-outline);
+  color: var(--color-on-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.wordmark {
+  text-decoration: none;
+  color: var(--color-on-surface);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+// UX-DR17: "conviviale" in terracotta accent color
+.wordmark-accent {
+  color: var(--color-primary);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+// UX-DR17: Discreet Admin ghost button — visible but unobtrusive
+.admin-link {
+  opacity: 0.6;
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant) !important;
+}
+
+main {
+  min-height: calc(100vh - 64px);
+}
