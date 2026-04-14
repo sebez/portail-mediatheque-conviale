@@ -1,5 +1,6 @@
-# Production Docker Compose — stub, completed in Story 1.4
-# See docker-compose.override.yml for local dev overrides
+# Production Docker Compose
+# Deploy with: docker compose up -d --build
+# Requires a .env file populated from .env.example
 
 version: '3.8'
 
@@ -16,6 +17,14 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file: .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # All secrets come from .env file (env_file above)
+      # ASP.NET Core double-underscore env var convention:
+      # ConnectionStrings__DefaultConnection → Configuration.GetConnectionString("DefaultConnection")
+      # Jwt__Secret                         → Configuration["Jwt:Secret"]
+      # Cors__AllowedOrigins                → Configuration["Cors:AllowedOrigins"]
+      # ADMIN_USERNAME / ADMIN_PASSWORD     → read directly in Program.cs
     volumes:
       - db-data:/data
 
@@ -27,9 +36,16 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # TLS certificates — created by certbot on the VPS host
+      # Replace "your-domain.com" with the actual VPS hostname
+      - /etc/letsencrypt/live/your-domain.com/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/your-domain.com/privkey.pem:/etc/nginx/certs/privkey.pem:ro
     depends_on:
       - frontend
       - backend
 
 volumes:
   db-data:
+    # Named volume — persists SQLite DB across container restarts and image upgrades
+    # Mounted at /data inside backend container → actual DB file: /data/mediatheque.db
+    # Backup: see .env.example for host cron command

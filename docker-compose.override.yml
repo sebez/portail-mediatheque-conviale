@@ -1,5 +1,6 @@
-# Local dev overrides — stub, completed in Story 1.4
-# Applied automatically by Docker Compose when running locally
+# Local dev overrides — applied automatically when running: docker compose up
+# Do NOT use this file on the VPS.
+# The production docker-compose.yml is the source of truth for deployment.
 
 version: '3.8'
 
@@ -7,9 +8,16 @@ services:
   backend:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      # Dev DB + JWT + CORS config come from appsettings.Development.json
+      # No ADMIN_USERNAME/ADMIN_PASSWORD needed — Program.cs falls back to "admin"/"admin" in dev
     ports:
       - "5000:5000"
+    volumes:
+      - db-data:/data  # Keep SQLite persisted in dev too (survives container restarts)
 
   frontend:
     ports:
-      - "4200:80"
+      - "4200:80"  # Angular static files served by the frontend nginx on port 4200
+
+volumes:
+  db-data:
