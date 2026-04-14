@@ -58,7 +58,7 @@ development_status:
   # ─────────────────────────────────────────────────────────────────────────────
   epic-2: in-progress
   2-1-public-books-api-list-and-detail-endpoints: review
-  2-2-book-cover-component-shared-cover-display-with-graceful-fallback: backlog
+  2-2-book-cover-component-shared-cover-display-with-graceful-fallback: ready-for-dev
   2-3-book-list-view-catalog-page-with-book-list-item-component: backlog
   2-4-book-detail-page: backlog
   2-5-homepage-selection-du-mois-feature-card-recently-added-and-footer: backlog
