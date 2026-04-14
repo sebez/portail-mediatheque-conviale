@@ -1,3 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using PortailMediatheque.Api.Data;
+using PortailMediatheque.Api.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
@@ -18,6 +25,11 @@ builder.Services.AddCors(options =>
 // ─── Controllers ─────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
 
+// ─── EF Core + SQLite ─────────────────────────────────────────────────────────
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Data Source=Data/mediatheque.db"));
+
 // ─── Swagger (development only — AC #6, #7) ──────────────────────────────────
 // CRITICAL: Never register or expose Swagger in production
 if (builder.Environment.IsDevelopment())
@@ -26,13 +38,54 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddSwaggerGen();
 }
 
-// ─── Authentication / Authorization (stub — fully configured in Story 1.2) ───
-// JWT middleware registered here so Story 1.2 can configure it without Program.cs changes
-builder.Services.AddAuthentication();
+// ─── Authentication — JWT Bearer ──────────────────────────────────────────────
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+if (string.IsNullOrWhiteSpace(jwtSecret) && builder.Environment.IsProduction())
+    throw new InvalidOperationException("Jwt:Secret must be configured in production.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSecret ?? "dev-only-secret-replace-in-production")),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero // no drift — exactly 8h expiry (NFR7)
+        };
+    });
 builder.Services.AddAuthorization();
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 var app = builder.Build();
+
+// ─── Database migration + admin credential seed ───────────────────────────────
+// MigrateAsync: auto-applies pending EF Core migrations on startup
+// Admin seed: idempotent — creates admin only if AdminUsers table is empty (AC #1)
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+
+    if (!await context.AdminUsers.AnyAsync())
+    {
+        var adminUsername = app.Configuration["ADMIN_USERNAME"]
+            ?? (app.Environment.IsDevelopment() ? "admin"
+                : throw new InvalidOperationException("ADMIN_USERNAME env var required in production."));
+        var adminPassword = app.Configuration["ADMIN_PASSWORD"]
+            ?? (app.Environment.IsDevelopment() ? "admin"
+                : throw new InvalidOperationException("ADMIN_PASSWORD env var required in production."));
+
+        context.AdminUsers.Add(new AdminUser
+        {
+            Username = adminUsername,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword)
+        });
+        await context.SaveChangesAsync();
+    }
+}
 
 // Swagger UI — development only (AC #6)
 if (app.Environment.IsDevelopment())

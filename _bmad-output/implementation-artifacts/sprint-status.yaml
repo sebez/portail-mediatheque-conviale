@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-13
-last_updated: 2026-04-13
+last_updated: 2026-04-14
 project: portail-mediatheque-conviale
 project_key: NOKEY
 tracking_system: file-system
@@ -48,7 +48,7 @@ development_status:
   # ─────────────────────────────────────────────────────────────────────────────
   epic-1: in-progress
   1-1-scaffold-frontend-and-backend-projects: review
-  1-2-data-model-database-setup-and-admin-credential-seeding: backlog
+  1-2-data-model-database-setup-and-admin-credential-seeding: review
   1-3-global-exception-handling-middleware: backlog
   1-4-docker-compose-and-production-deployment-configuration: backlog
   epic-1-retrospective: optional

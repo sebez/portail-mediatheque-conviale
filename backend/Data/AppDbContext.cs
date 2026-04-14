@@ -12,4 +12,11 @@ public class AppDbContext : DbContext
 
     public DbSet<Book> Books => Set<Book>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Book>()
+            .Property(b => b.Status)
+            .HasDefaultValue("available"); // DB-level default (FR26)
+    }
 }
