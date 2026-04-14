@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PortailMediatheque.Api.Data;
+using PortailMediatheque.Api.Middleware;
 using PortailMediatheque.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -86,6 +87,9 @@ await using (var scope = app.Services.CreateAsyncScope())
         await context.SaveChangesAsync();
     }
 }
+
+// ─── Global exception handling — MUST be first to catch exceptions from all middleware ─
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Swagger UI — development only (AC #6)
 if (app.Environment.IsDevelopment())

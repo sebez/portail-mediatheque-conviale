@@ -1,6 +1,6 @@
 # Story 1.3: Global Exception Handling Middleware
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -18,26 +18,26 @@ So that NFR9 is satisfied and all future API errors follow a consistent, safe fo
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Replace stub middleware with full implementation (AC: #1, #2)
-  - [ ] Replace the passthrough body of `backend/Middleware/ExceptionHandlingMiddleware.cs` with the full implementation (see Dev Notes for exact code)
-  - [ ] Inject `IHostEnvironment` via constructor
-  - [ ] On exception: set `Content-Type: application/problem+json`, status 500, write ProblemDetails JSON
-  - [ ] Production: `detail` field is `null` (no stack trace, no exception message)
-  - [ ] Development: `detail` field contains `exception.ToString()` (full trace)
+- [x] Task 1: Replace stub middleware with full implementation (AC: #1, #2)
+  - [x] Replace the passthrough body of `backend/Middleware/ExceptionHandlingMiddleware.cs` with the full implementation (see Dev Notes for exact code)
+  - [x] Inject `IHostEnvironment` via constructor
+  - [x] On exception: set `Content-Type: application/problem+json`, status 500, write ProblemDetails JSON
+  - [x] Production: `detail` field is `null` (no stack trace, no exception message)
+  - [x] Development: `detail` field contains `exception.ToString()` (full trace)
 
-- [ ] Task 2: Register middleware in `Program.cs` pipeline (AC: #1, #3)
-  - [ ] Add `using PortailMediatheque.Api.Middleware;` at the top of `Program.cs`
-  - [ ] Add `app.UseMiddleware<ExceptionHandlingMiddleware>();` as the **first** middleware after `app.Build()`, before `app.UseSwagger()` and `app.UseCors()` (see Dev Notes for exact placement)
+- [x] Task 2: Register middleware in `Program.cs` pipeline (AC: #1, #3)
+  - [x] Add `using PortailMediatheque.Api.Middleware;` at the top of `Program.cs`
+  - [x] Add `app.UseMiddleware<ExceptionHandlingMiddleware>();` as the **first** middleware after `app.Build()`, before `app.UseSwagger()` and `app.UseCors()` (see Dev Notes for exact placement)
 
-- [ ] Task 3: Write tests in `backend.Tests/Middleware/ExceptionHandlingMiddlewareTests.cs` (AC: #1, #2)
-  - [ ] `InvokeAsync_UnhandledException_Production_Returns500WithNoProblemDetails` — production env, verify status 500, `application/problem+json` content type, no exception type string in body
-  - [ ] `InvokeAsync_UnhandledException_Development_Returns500WithExceptionDetail` — development env, verify `detail` field contains exception info
-  - [ ] `InvokeAsync_NoException_PassesThroughToNextMiddleware` — no exception thrown, verify next delegate was called
+- [x] Task 3: Write tests in `backend.Tests/Middleware/ExceptionHandlingMiddlewareTests.cs` (AC: #1, #2)
+  - [x] `InvokeAsync_UnhandledException_Production_Returns500WithNoProblemDetails` — production env, verify status 500, `application/problem+json` content type, no exception type string in body
+  - [x] `InvokeAsync_UnhandledException_Development_Returns500WithExceptionDetail` — development env, verify `detail` field contains exception info
+  - [x] `InvokeAsync_NoException_PassesThroughToNextMiddleware` — no exception thrown, verify next delegate was called
 
-- [ ] Task 4: Final validation
-  - [ ] `dotnet build` — 0 errors, 0 warnings
-  - [ ] `dotnet run` — backend starts without errors; trigger a deliberate exception via a test route to verify 500 ProblemDetails response (or use Swagger)
-  - [ ] `dotnet test` — all tests pass (14/14 expected after adding 3 new tests)
+- [x] Task 4: Final validation
+  - [x] `dotnet build` — 0 errors, 0 warnings
+  - [x] `dotnet run` — backend starts without errors; trigger a deliberate exception via a test route to verify 500 ProblemDetails response (or use Swagger)
+  - [x] `dotnet test` — all tests pass (14/14 expected after adding 3 new tests)
 
 ## Dev Notes
 
@@ -294,6 +294,12 @@ public class ExceptionHandlingMiddlewareTests
 
 ---
 
+## Change Log
+
+| Date | Change |
+|------|--------|
+| 2026-04-14 | Initial implementation — ExceptionHandlingMiddleware with IHostEnvironment injection, ProblemDetails 500 response (no stack trace in production, full detail in development), registered first in Program.cs middleware pipeline. 3 new tests, 14/14 passing. |
+
 ## Dev Agent Record
 
 ### Agent Model Used
@@ -302,6 +308,22 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+- Confirmed red phase: the stub middleware had only a 1-argument constructor (`RequestDelegate next`), so test compilation failed with CS1729 ("no constructor that takes 2 arguments") — exactly as expected. Adding `IHostEnvironment env` as the second constructor parameter resolved all 3 compile errors.
+- `dotnet build` clean (0 warnings, 0 errors) on both backend and backend.Tests.
+- `dotnet test` result: 14/14 passed (11 pre-existing + 3 new middleware tests). No regressions.
+
 ### Completion Notes List
 
+- ✅ Task 1: `ExceptionHandlingMiddleware.cs` replaced — `IHostEnvironment` injected via constructor; try/catch wraps `_next(context)`; on exception sets `Content-Type: application/problem+json`, status 500, writes ProblemDetails JSON; production `detail = null`, development `detail = exception.ToString()`.
+- ✅ Task 2: `Program.cs` updated — `using PortailMediatheque.Api.Middleware;` added; `app.UseMiddleware<ExceptionHandlingMiddleware>();` registered as first middleware after `app.Build()`, before Swagger and `app.UseCors()`.
+- ✅ Task 3: `backend.Tests/Middleware/ExceptionHandlingMiddlewareTests.cs` created with 3 tests: production (no stack trace, correct ProblemDetails shape), development (exception detail visible), pass-through (no exception → next delegate called). Uses `FakeHostEnvironment` inner class — no Moq needed.
+- ✅ Task 4: `dotnet build` = 0 errors / 0 warnings; `dotnet test` = 14/14 passed.
+
 ### File List
+
+**Backend (`backend/`):**
+- `Middleware/ExceptionHandlingMiddleware.cs` (modified — replaced passthrough stub with full try/catch implementation; added `IHostEnvironment` constructor injection)
+- `Program.cs` (modified — added `using PortailMediatheque.Api.Middleware;`; added `app.UseMiddleware<ExceptionHandlingMiddleware>();` as first middleware)
+
+**Test project (`backend.Tests/`):**
+- `Middleware/ExceptionHandlingMiddlewareTests.cs` (new — 3 tests: production no-stack-trace, development full detail, pass-through)
