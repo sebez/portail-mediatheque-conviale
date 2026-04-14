@@ -5,6 +5,8 @@ using System.Text;
 using PortailMediatheque.Api.Data;
 using PortailMediatheque.Api.Middleware;
 using PortailMediatheque.Api.Models;
+using PortailMediatheque.Api.Services;
+using PortailMediatheque.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,9 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 }
+
+// ─── Services ─────────────────────────────────────────────────────────────────
+builder.Services.AddScoped<IBookService, BookService>();
 
 // ─── Authentication — JWT Bearer ──────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"];
