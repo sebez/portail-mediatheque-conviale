@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-13
-last_updated: 2026-04-16  # story 2-4 in review
+last_updated: 2026-04-16  # story 2-5 ready-for-dev
 project: portail-mediatheque-conviale
 project_key: NOKEY
 tracking_system: file-system
@@ -61,7 +61,7 @@ development_status:
   2-2-book-cover-component-shared-cover-display-with-graceful-fallback: review
   2-3-book-list-view-catalog-page-with-book-list-item-component: review
   2-4-book-detail-page: review
-  2-5-homepage-selection-du-mois-feature-card-recently-added-and-footer: backlog
+  2-5-homepage-selection-du-mois-feature-card-recently-added-and-footer: ready-for-dev
   epic-2-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────────────────────
