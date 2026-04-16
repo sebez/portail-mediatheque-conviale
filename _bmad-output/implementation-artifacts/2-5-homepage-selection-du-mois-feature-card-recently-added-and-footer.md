@@ -1,6 +1,6 @@
 # Story 2.5: Homepage — Sélection du Mois Feature Card, Recently Added & Footer
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,57 +22,57 @@ so that every visit shows me what the curator recommends and what's new.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement `SelectionDuMoisCard` component (AC: #1, #2, #3)
-  - [ ] Replace stub in `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.ts`
-  - [ ] `standalone: true`; inline template and styles (NO separate .html/.scss files)
-  - [ ] `@Input() books: Book[] = []`; typed to `Book[]` (NOT `unknown[]` as in stub)
-  - [ ] Render nothing when `books.length === 0` — use `@if (books.length > 0)` as outermost wrapper
-  - [ ] Outer section: `role="region"` + `aria-label="Sélection du mois"`
-  - [ ] Badge pill: `<span class="sdm-badge">Sélection du mois</span>` — terracotta background (`var(--color-primary)`)
-  - [ ] Month label: computed property `get currentMonthLabel()` returning French month + year (e.g., "Avril 2026")
-  - [ ] For each book: `app-book-cover size="large"` + title (Title large) + author (Body medium muted) + full curator note (Body large italic) + "Voir le livre →" `[routerLink]`
-  - [ ] Multiple books layout: `scroll-snap-type: x mandatory; overflow-x: auto` on mobile; `grid-template-columns: repeat(2, 1fr)` on desktop (≥960px)
-  - [ ] Single book layout: full-width centered card (no scroll, no grid)
-  - [ ] All colors via `var(--color-*)` custom properties
+- [x] Task 1: Implement `SelectionDuMoisCard` component (AC: #1, #2, #3)
+  - [x] Replace stub in `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.ts`
+  - [x] `standalone: true`; inline template and styles (NO separate .html/.scss files)
+  - [x] `@Input() books: Book[] = []`; typed to `Book[]` (NOT `unknown[]` as in stub)
+  - [x] Render nothing when `books.length === 0` — use `@if (books.length > 0)` as outermost wrapper
+  - [x] Outer section: `role="region"` + `aria-label="Sélection du mois"`
+  - [x] Badge pill: `<span class="sdm-badge">Sélection du mois</span>` — terracotta background (`var(--color-primary)`)
+  - [x] Month label: computed property `get currentMonthLabel()` returning French month + year (e.g., "Avril 2026")
+  - [x] For each book: `app-book-cover size="large"` + title (Title large) + author (Body medium muted) + full curator note (Body large italic) + "Voir le livre →" `[routerLink]`
+  - [x] Multiple books layout: `scroll-snap-type: x mandatory; overflow-x: auto` on mobile; `grid-template-columns: repeat(2, 1fr)` on desktop (≥960px)
+  - [x] Single book layout: full-width centered card (no scroll, no grid)
+  - [x] All colors via `var(--color-*)` custom properties
 
-- [ ] Task 2: Write tests for `SelectionDuMoisCard` (AC: #1, #2, #3)
-  - [ ] Create `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.spec.ts`
-  - [ ] Test: renders nothing when `books` is empty (`[]`) — section absent from DOM
-  - [ ] Test: renders `role="region"` section when books present
-  - [ ] Test: shows "Sélection du mois" badge text
-  - [ ] Test: shows month label (non-empty string in correct format)
-  - [ ] Test: shows `app-book-cover` with `size="large"` for each book
-  - [ ] Test: shows book title and author
-  - [ ] Test: shows full curator note (not clamped)
-  - [ ] Test: "Voir le livre →" link has `routerLink` to `/livres/:id`
+- [x] Task 2: Write tests for `SelectionDuMoisCard` (AC: #1, #2, #3)
+  - [x] Create `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.spec.ts`
+  - [x] Test: renders nothing when `books` is empty (`[]`) — section absent from DOM
+  - [x] Test: renders `role="region"` section when books present
+  - [x] Test: shows "Sélection du mois" badge text
+  - [x] Test: shows month label (non-empty string in correct format)
+  - [x] Test: shows `app-book-cover` with `size="large"` for each book
+  - [x] Test: shows book title and author
+  - [x] Test: shows full curator note (not clamped)
+  - [x] Test: "Voir le livre →" link has `routerLink` to `/livres/:id`
 
-- [ ] Task 3: Update `Home` component (AC: #4, #5)
-  - [ ] Update `frontend/src/app/features/catalog/home/home.ts`
-  - [ ] Import and add `SelectionDuMoisCard` to `imports` array
-  - [ ] Add `selectionBooks: Book[]` and `recentlyAdded: Book[]` properties
-  - [ ] Derive `selectionBooks` and `recentlyAdded` from already-loaded `books` array (NO extra API calls):
+- [x] Task 3: Update `Home` component (AC: #4, #5)
+  - [x] Update `frontend/src/app/features/catalog/home/home.ts`
+  - [x] Import and add `SelectionDuMoisCard` to `imports` array
+  - [x] Add `selectionBooks: Book[]` and `recentlyAdded: Book[]` properties
+  - [x] Derive `selectionBooks` and `recentlyAdded` from already-loaded `books` array (NO extra API calls):
     - `selectionBooks = books.filter(b => b.isSelectionDuMois)`
     - `recentlyAdded = [...books].sort((a, b) => b.dateAdded.localeCompare(a.dateAdded)).slice(0, 5)`
-  - [ ] Replace slot comment for SelectionDuMois with `<app-selection-du-mois-card [books]="selectionBooks">`
-  - [ ] Replace slot comment for Recently Added with a proper section: `<section class="recently-added">`, heading "Nouveaux arrivages", `<ul>` of `BookListItem` with `variant="default"`
-  - [ ] Add footer: `<footer class="catalog-footer">X livres dans la collection · Mis à jour le [date]</footer>`
-  - [ ] Footer date: most recent `dateAdded` from the books array, formatted in French ("15 avril 2026")
-  - [ ] Footer only renders when `books.length > 0`; recently added section only renders when books exist
-  - [ ] Keep existing catalog list, loading spinner, and empty state — NO regressions
+  - [x] Replace slot comment for SelectionDuMois with `<app-selection-du-mois-card [books]="selectionBooks">`
+  - [x] Replace slot comment for Recently Added with a proper section: `<section class="recently-added">`, heading "Nouveaux arrivages", `<ul>` of `BookListItem` with `variant="default"`
+  - [x] Add footer: `<footer class="catalog-footer">X livres dans la collection · Mis à jour le [date]</footer>`
+  - [x] Footer date: most recent `dateAdded` from the books array, formatted in French ("15 avril 2026")
+  - [x] Footer only renders when `books.length > 0`; recently added section only renders when books exist
+  - [x] Keep existing catalog list, loading spinner, and empty state — NO regressions
 
-- [ ] Task 4: Write tests for `Home` (AC: #4, #5 + regression for #1, #2)
-  - [ ] Create `frontend/src/app/features/catalog/home/home.spec.ts`
-  - [ ] Mock `BookService.getAll()` with Vitest `vi.fn()`
-  - [ ] Test: `SelectionDuMoisCard` is NOT in DOM when no selection books exist
-  - [ ] Test: `SelectionDuMoisCard` IS in DOM when `isSelectionDuMois = true` books present
-  - [ ] Test: Recently Added section shows (up to) 5 most recent books by `dateAdded DESC`
-  - [ ] Test: footer text contains "livres dans la collection" when books exist
-  - [ ] Test: existing catalog list still renders all books (regression)
-  - [ ] Test: empty state renders "La médiathèque est vide pour l'instant." when no books
+- [x] Task 4: Write tests for `Home` (AC: #4, #5 + regression for #1, #2)
+  - [x] Create `frontend/src/app/features/catalog/home/home.spec.ts`
+  - [x] Mock `BookService.getAll()` with Vitest `vi.fn()`
+  - [x] Test: `SelectionDuMoisCard` is NOT in DOM when no selection books exist
+  - [x] Test: `SelectionDuMoisCard` IS in DOM when `isSelectionDuMois = true` books present
+  - [x] Test: Recently Added section shows (up to) 5 most recent books by `dateAdded DESC`
+  - [x] Test: footer text contains "livres dans la collection" when books exist
+  - [x] Test: existing catalog list still renders all books (regression)
+  - [x] Test: empty state renders "La médiathèque est vide pour l'instant." when no books
 
-- [ ] Task 5: Validation
-  - [ ] `ng build` — 0 errors, 0 warnings
-  - [ ] `ng test --watch=false` — all tests pass, 0 regressions (24 prior + ~14 new ≈ 38 total)
+- [x] Task 5: Validation
+  - [x] `ng build` — 0 errors, 0 warnings
+  - [x] `ng test --watch=false` — all tests pass, 0 regressions (42 total: 24 prior + 11 SelectionDuMoisCard + 6 Home + 1 app)
 
 ## Dev Notes
 
@@ -815,24 +815,30 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
-_None yet — story not yet implemented._
+No issues encountered — implementation proceeded without blockers.
 
 ### Completion Notes List
 
-_To be filled by dev agent after implementation._
+- Replaced `SelectionDuMoisCard` stub (books typed as `unknown[]`, no standalone, no real template) with full implementation: `standalone: true`, `@Input() books: Book[]`, inline template+styles, `@if`/`@for` Angular 17+ control flow.
+- `currentMonthLabel` uses `Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' })` with manual first-char capitalization ("avril" → "Avril").
+- `.sdm-cards--multiple` CSS modifier drives horizontal scroll snap (mobile) + 2-col grid (desktop ≥960px).
+- Updated `Home`: added `selectionBooks` + `recentlyAdded` derived client-side from single `getAll()` response; added `SelectionDuMoisCard` import; wired "Nouveaux arrivages" section + "Tout le catalogue" section + footer with `lastUpdatedLabel` computed property (French date via `Intl`).
+- Kept Story 3.2 slot comment in `Home`. Kept loading spinner, empty state, and full catalog list unchanged.
+- Build: ✅ 0 errors, 0 warnings. Tests: ✅ 42 passed (6 files) — 24 prior + 11 SelectionDuMoisCard + 6 Home + 1 app.
 
 ### File List
 
-**Files to modify:**
-- `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.ts` — replace stub with full implementation
-- `frontend/src/app/features/catalog/home/home.ts` — add SelectionDuMoisCard, Recently Added, footer
+**Files modified:**
+- `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.ts` — replaced stub with full implementation
+- `frontend/src/app/features/catalog/home/home.ts` — added SelectionDuMoisCard, Recently Added, footer
 
-**New files to create:**
-- `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.spec.ts` — ~11 tests
-- `frontend/src/app/features/catalog/home/home.spec.ts` — ~6 tests
+**New files created:**
+- `frontend/src/app/shared/components/selection-du-mois-card/selection-du-mois-card.spec.ts` — 11 tests
+- `frontend/src/app/features/catalog/home/home.spec.ts` — 6 tests
 
 ## Change Log
 
 | Date | Change |
 |------|--------|
 | 2026-04-16 | Story created — SelectionDuMoisCard + Recently Added + footer implementation guide. |
+| 2026-04-16 | Implemented all tasks — SelectionDuMoisCard full component, Home updated with selection/recently-added/footer, 17 new tests added. Build: 0 errors. Tests: 42 passed. Status → review. |
