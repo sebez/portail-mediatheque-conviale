@@ -1,6 +1,6 @@
 # Story 2.3: Book List View — Catalog Page with BookListItemComponent
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,39 +22,39 @@ So that I can browse what's available and decide what to read without visiting t
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement `BookListItem` component (AC: #1, #2, #5)
-  - [ ] Replace the stub in `frontend/src/app/shared/components/book-list-item/book-list-item.ts`
-  - [ ] Add `standalone: true`, `imports: [BookCover, RouterLink]` — keep class name `BookListItem` (not `BookListItemComponent`)
-  - [ ] `@Input() book!: Book` — import `Book` from `shared/models/book.model`
-  - [ ] `@Input() variant: 'default' | 'compact' = 'default'`
-  - [ ] Implement layout: cover (left, 72×100px) + right column (title, author/genre, note preview)
-  - [ ] `compact` variant omits curator note preview (used by admin Story 5.2)
-  - [ ] 2-line clamp on curator note preview via CSS: `-webkit-line-clamp: 2` + `overflow: hidden`
-  - [ ] Wrap entire item in a `[routerLink]` anchor to `/livres/:id`
-  - [ ] `role="article"` on root element, `aria-label="[book.title] par [book.author]"`
-  - [ ] Use only CSS custom properties from `styles.scss` for colors
+- [x] Task 1: Implement `BookListItem` component (AC: #1, #2, #5)
+  - [x] Replace the stub in `frontend/src/app/shared/components/book-list-item/book-list-item.ts`
+  - [x] Add `standalone: true`, `imports: [BookCover, RouterLink]` — keep class name `BookListItem` (not `BookListItemComponent`)
+  - [x] `@Input() book!: Book` — import `Book` from `shared/models/book.model`
+  - [x] `@Input() variant: 'default' | 'compact' = 'default'`
+  - [x] Implement layout: cover (left, 72×100px) + right column (title, author/genre, note preview)
+  - [x] `compact` variant omits curator note preview (used by admin Story 5.2)
+  - [x] 2-line clamp on curator note preview via CSS: `-webkit-line-clamp: 2` + `overflow: hidden`
+  - [x] Wrap entire item in a `[routerLink]` anchor to `/livres/:id`
+  - [x] `role="article"` on root element, `aria-label="[book.title] par [book.author]"`
+  - [x] Use only CSS custom properties from `styles.scss` for colors
 
-- [ ] Task 2: Implement `Home` component — catalog page (AC: #1, #3, #4)
-  - [ ] Replace the stub in `frontend/src/app/features/catalog/home/home.ts`
-  - [ ] Inject `BookService`; `books: Book[] = []`; `isLoading = false`
-  - [ ] `ngOnInit` calls `loadBooks()` using the Angular loading state pattern (architecture doc)
-  - [ ] Template: `@if (isLoading)` → `mat-progress-spinner`; `@for (book of books)` → `<app-book-list-item>`; empty state message
-  - [ ] Apply responsive `.catalog-container` class: mobile 16px margins → tablet max-width 720px centered → desktop max-width 800px centered
-  - [ ] Leave structural placeholders (HTML comments) for Story 2.5 sections: Sélection du mois (above list) and Recently Added (above catalog)
-  - [ ] Import `MatProgressSpinnerModule`, `BookListItem`, `RouterLink`
+- [x] Task 2: Implement `Home` component — catalog page (AC: #1, #3, #4)
+  - [x] Replace the stub in `frontend/src/app/features/catalog/home/home.ts`
+  - [x] Inject `BookService`; `books: Book[] = []`; `isLoading = false`
+  - [x] `ngOnInit` calls `loadBooks()` using the Angular loading state pattern (architecture doc)
+  - [x] Template: `@if (isLoading)` → `mat-progress-spinner`; `@for (book of books)` → `<app-book-list-item>`; empty state message
+  - [x] Apply responsive `.catalog-container` class: mobile 16px margins → tablet max-width 720px centered → desktop max-width 800px centered
+  - [x] Leave structural placeholders (HTML comments) for Story 2.5 sections: Sélection du mois (above list) and Recently Added (above catalog)
+  - [x] Import `MatProgressSpinnerModule`, `BookListItem`, `RouterLink`
 
-- [ ] Task 3: Write tests for `BookListItem` (AC: #1, #2, #5)
-  - [ ] Create `frontend/src/app/shared/components/book-list-item/book-list-item.spec.ts`
-  - [ ] Test: renders title, author, genre from `book` input
-  - [ ] Test: shows `<app-book-cover>` element (delegate placeholder logic to BookCover — only test integration presence)
-  - [ ] Test: `role="article"` present on root element
-  - [ ] Test: `aria-label` contains book title and author
-  - [ ] Test: curator note preview shown in `default` variant
-  - [ ] Test: curator note NOT shown in `compact` variant
+- [x] Task 3: Write tests for `BookListItem` (AC: #1, #2, #5)
+  - [x] Create `frontend/src/app/shared/components/book-list-item/book-list-item.spec.ts`
+  - [x] Test: renders title, author, genre from `book` input
+  - [x] Test: shows `<app-book-cover>` element (delegate placeholder logic to BookCover — only test integration presence)
+  - [x] Test: `role="article"` present on root element
+  - [x] Test: `aria-label` contains book title and author
+  - [x] Test: curator note preview shown in `default` variant
+  - [x] Test: curator note NOT shown in `compact` variant
 
-- [ ] Task 4: Validation
-  - [ ] `ng build` — 0 errors, 0 warnings
-  - [ ] `ng test --watch=false` — all tests pass, 0 regressions (previous 8 BookCover + 3 App tests must still pass)
+- [x] Task 4: Validation
+  - [x] `ng build` — 0 errors, 0 warnings
+  - [x] `ng test --watch=false` — all tests pass, 0 regressions (previous 8 BookCover + 3 App tests must still pass)
 
 ## Dev Notes
 
@@ -525,15 +525,23 @@ Recent commits show Story 2.2 was the last completed story. Prior to it: Story 1
 
 ### Agent Model Used
 
-<!-- To be filled by dev agent -->
+claude-sonnet-4-6
 
 ### Debug Log References
 
-<!-- To be filled by dev agent -->
+No issues encountered during implementation. Build and tests passed first time.
 
 ### Completion Notes List
 
-<!-- To be filled by dev agent -->
+- Implemented `BookListItem` standalone component with inline template/styles following project convention (no separate .html/.scss files).
+- Used `size="medium"` + 72×100px CSS wrapper to match UX-DR4 display spec without modifying `BookCover`'s canonical size system.
+- Used Angular 17+ `@if`/`@for` control flow throughout; no `NgIf`/`NgFor` needed.
+- Genre rendered inline via template expression `{{ book.author }}{{ book.genre ? ' · ' + book.genre : '' }}` — avoids `*ngIf` on span.
+- `compact` variant suppresses curator note preview; `default` shows 2-line clamped note via `-webkit-line-clamp`.
+- `role="article"` and `[attr.aria-label]` placed on the `<a>` root element (AC #5).
+- `Home` component: loading state pattern with `isLoading` flag, `@if`/`@else if`/`@else` branches, responsive `.catalog-container`, empty state message (AC #4), structural HTML comment placeholders for Stories 2.5 and 3.2.
+- Created 7 unit tests in `book-list-item.spec.ts`: title, author/genre, app-book-cover presence, role="article", aria-label, default note display, compact note suppression.
+- `ng build` — 0 errors, 0 warnings. `ng test --watch=false` — 15 tests passed across 3 files, 0 regressions.
 
 ## File List
 
@@ -549,3 +557,4 @@ Recent commits show Story 2.2 was the last completed story. Prior to it: Story 1
 | Date | Change |
 |------|--------|
 | 2026-04-16 | Story created — BookListItem + Home catalog page implementation plan documented. |
+| 2026-04-16 | Story implemented — BookListItem component, Home catalog page, 7 unit tests. Build clean, 15 tests passed. Status → review. |
