@@ -1,6 +1,6 @@
 # Story 2.4: Book Detail Page
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,34 +20,34 @@ so that I can read the animator's recommendation before deciding to pick the boo
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement `BookDetail` component (AC: #1, #2, #3, #4)
-  - [ ] Replace the stub in `frontend/src/app/features/catalog/book-detail/book-detail.ts`
-  - [ ] `standalone: true`; inline template and styles (NO separate .html/.scss files)
-  - [ ] Use `@Input() id!: string` to receive the `:id` route param via `withComponentInputBinding()` (already configured in `app.config.ts`)
-  - [ ] Inject `BookService`; call `getById(+this.id)` in `ngOnInit` using the loading state pattern
-  - [ ] Template states: `@if (isLoading)` → spinner; `@else if (book)` → detail view; `@else` → error/not-found state
-  - [ ] Detail view: back navigation row (`←` link to `/`), then large cover (`size="large"`), then metadata section (title, author, genre, year), then full curator note section
-  - [ ] Error/not-found state: "Livre introuvable" message + `[routerLink]="['/']"` link "Retour au catalogue"
-  - [ ] Handle HTTP 404 (or any error) in the `error` callback of the subscribe — set `book = null`, `isLoading = false`
-  - [ ] Back button uses `[routerLink]="['/']"` — NEVER `window.history.back()` (UX-DR13)
-  - [ ] Responsive container: same `.detail-container` class with mobile 16px margins → tablet 720px → desktop 800px max-width pattern from `Home`
-  - [ ] Curator note styled Body large: `font-size: 16px; line-height: 1.6` (UX-DR2)
-  - [ ] All colors use `var(--color-*)` CSS custom properties from `styles.scss`
-  - [ ] Import: `BookCover`, `RouterLink`, `MatProgressSpinnerModule`, `MatButtonModule`, `MatIconModule`
+- [x] Task 1: Implement `BookDetail` component (AC: #1, #2, #3, #4)
+  - [x] Replace the stub in `frontend/src/app/features/catalog/book-detail/book-detail.ts`
+  - [x] `standalone: true`; inline template and styles (NO separate .html/.scss files)
+  - [x] Use `@Input() id!: string` to receive the `:id` route param via `withComponentInputBinding()` (already configured in `app.config.ts`)
+  - [x] Inject `BookService`; call `getById(+this.id)` in `ngOnInit` using the loading state pattern
+  - [x] Template states: `@if (isLoading)` → spinner; `@else if (book)` → detail view; `@else` → error/not-found state
+  - [x] Detail view: back navigation row (`←` link to `/`), then large cover (`size="large"`), then metadata section (title, author, genre, year), then full curator note section
+  - [x] Error/not-found state: "Livre introuvable" message + `[routerLink]="['/']"` link "Retour au catalogue"
+  - [x] Handle HTTP 404 (or any error) in the `error` callback of the subscribe — set `book = null`, `isLoading = false`
+  - [x] Back button uses `[routerLink]="['/']"` — NEVER `window.history.back()` (UX-DR13)
+  - [x] Responsive container: same `.detail-container` class with mobile 16px margins → tablet 720px → desktop 800px max-width pattern from `Home`
+  - [x] Curator note styled Body large: `font-size: 16px; line-height: 1.6` (UX-DR2)
+  - [x] All colors use `var(--color-*)` CSS custom properties from `styles.scss`
+  - [x] Import: `BookCover`, `RouterLink`, `MatProgressSpinnerModule`, `MatButtonModule`, `MatIconModule`
 
-- [ ] Task 2: Write tests for `BookDetail` (AC: #1, #2, #3, #4)
-  - [ ] Create `frontend/src/app/features/catalog/book-detail/book-detail.spec.ts`
-  - [ ] Mock `BookService` with `jasmine.createSpyObj` (or equivalent for Vitest) providing `getById` spy
-  - [ ] Test: shows `mat-progress-spinner` while `isLoading = true`
-  - [ ] Test: renders book title, author, genre, publication year when book loaded
-  - [ ] Test: `<app-book-cover>` element present with `size="large"`
-  - [ ] Test: shows "Livre introuvable" when `getById` returns 404/error
-  - [ ] Test: back link has `routerLink` pointing to `/`
-  - [ ] Test: shows `BookCover` with `coverUrl` bound to `book.coverImageUrl`
+- [x] Task 2: Write tests for `BookDetail` (AC: #1, #2, #3, #4)
+  - [x] Create `frontend/src/app/features/catalog/book-detail/book-detail.spec.ts`
+  - [x] Mock `BookService` with `vi.fn()` (Vitest) providing `getById` spy
+  - [x] Test: shows `mat-progress-spinner` while `isLoading = true`
+  - [x] Test: renders book title, author, genre, publication year when book loaded
+  - [x] Test: `<app-book-cover>` element present with `size="large"`
+  - [x] Test: shows "Livre introuvable" when `getById` returns 404/error
+  - [x] Test: back link has `routerLink` pointing to `/`
+  - [x] Test: shows `BookCover` with `coverUrl` bound to `book.coverImageUrl`
 
-- [ ] Task 3: Validation
-  - [ ] `ng build` — 0 errors, 0 warnings
-  - [ ] `ng test --watch=false` — all tests pass, 0 regressions (prior count: 15 tests from Stories 2.2 + 2.3)
+- [x] Task 3: Validation
+  - [x] `ng build` — 0 errors, 0 warnings
+  - [x] `ng test --watch=false` — all tests pass, 0 regressions (25 total: 15 prior + 10 new)
 
 ## Dev Notes
 
@@ -558,18 +558,25 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+- Jasmine test APIs (createSpyObj, toBeFalse) replaced with Vitest equivalents (vi.fn(), toBe(false)) — project uses Vitest, not Karma/Jasmine.
+
 ### Completion Notes List
+
+- ✅ Task 1: Implemented `BookDetail` standalone component with inline template and styles. Uses `@Input() id` bound via `withComponentInputBinding()`, calls `BookService.getById(+this.id)`, renders three states (loading spinner, detail view, not-found). All AC satisfied.
+- ✅ Task 2: Created `book-detail.spec.ts` with 10 tests covering all AC. Used Vitest `vi.fn()` for mocking. All 25 tests pass (15 prior + 10 new).
+- ✅ Task 3: `ng build` — 0 errors, 0 warnings. `ng test --watch=false` — 25/25 passed.
 
 ### File List
 
-**Files to modify:**
+**Files modified:**
 - `frontend/src/app/features/catalog/book-detail/book-detail.ts` — full implementation replacing stub
 
 **New files:**
-- `frontend/src/app/features/catalog/book-detail/book-detail.spec.ts` — tests for BookDetail
+- `frontend/src/app/features/catalog/book-detail/book-detail.spec.ts` — 10 Vitest tests for BookDetail
 
 ## Change Log
 
 | Date | Change |
 |------|--------|
 | 2026-04-16 | Story created — BookDetail component implementation guide. |
+| 2026-04-16 | Implemented BookDetail component and spec; 25/25 tests pass; build clean. |
