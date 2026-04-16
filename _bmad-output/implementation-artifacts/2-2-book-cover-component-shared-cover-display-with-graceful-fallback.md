@@ -1,6 +1,6 @@
 # Story 2.2: BookCoverComponent — Shared Cover Display with Graceful Fallback
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,27 +20,27 @@ So that the catalog never shows broken image icons and always looks polished.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement `BookCover` component (AC: #1, #2, #3, #4)
-  - [ ] Replace the stub in `frontend/src/app/shared/components/book-cover/book-cover.ts`
-  - [ ] Add `standalone: true`, `imports: [MatIconModule]` — keep class name `BookCover` (not `BookCoverComponent`)
-  - [ ] Implement three states: `loading` (skeleton shimmer), `loaded` (image), `error/null` (warm placeholder)
-  - [ ] Use `(load)` event to flip `isLoaded = true`; use `(error)` event to flip `hasError = true`
-  - [ ] Implement `ngOnChanges()` to reset `isLoaded` and `hasError` when `coverUrl` input changes
-  - [ ] Apply size CSS classes `book-cover--small`, `book-cover--medium`, `book-cover--large` via `[class]` binding
-  - [ ] Use `mat-icon` with `menu_book` for the placeholder — never a native broken image state
-  - [ ] Use only CSS custom properties from `styles.scss` for colours (`--color-outline`, `--color-on-surface-variant`)
+- [x] Task 1: Implement `BookCover` component (AC: #1, #2, #3, #4)
+  - [x] Replace the stub in `frontend/src/app/shared/components/book-cover/book-cover.ts`
+  - [x] Add `standalone: true`, `imports: [MatIconModule]` — keep class name `BookCover` (not `BookCoverComponent`)
+  - [x] Implement three states: `loading` (skeleton shimmer), `loaded` (image), `error/null` (warm placeholder)
+  - [x] Use `(load)` event to flip `isLoaded = true`; use `(error)` event to flip `hasError = true`
+  - [x] Implement `@Input` setter (instead of `ngOnChanges`) to reset `isLoaded` and `hasError` when `coverUrl` changes
+  - [x] Apply size CSS classes `book-cover--small`, `book-cover--medium`, `book-cover--large` via `[class]` binding
+  - [x] Use `mat-icon` with `menu_book` for the placeholder — never a native broken image state
+  - [x] Use only CSS custom properties from `styles.scss` for colours (`--color-outline`, `--color-on-surface-variant`)
 
-- [ ] Task 2: Write tests (AC: #1–#4)
-  - [ ] Create `frontend/src/app/shared/components/book-cover/book-cover.spec.ts`
-  - [ ] Test: placeholder shown when `coverUrl` is `null`
-  - [ ] Test: `<img>` rendered when valid `coverUrl` provided
-  - [ ] Test: placeholder shown after image `error` event fires
-  - [ ] Test: CSS class `book-cover--large` applied when `size="large"`
-  - [ ] Test: `alt` attribute passed through to `<img>`
+- [x] Task 2: Write tests (AC: #1–#4)
+  - [x] Create `frontend/src/app/shared/components/book-cover/book-cover.spec.ts`
+  - [x] Test: placeholder shown when `coverUrl` is `null`
+  - [x] Test: `<img>` rendered when valid `coverUrl` provided
+  - [x] Test: placeholder shown after image `error` event fires
+  - [x] Test: CSS class `book-cover--large` applied when `size="large"`
+  - [x] Test: `alt` attribute passed through to `<img>`
 
-- [ ] Task 3: Validation
-  - [ ] `ng build` — 0 errors, 0 warnings
-  - [ ] `ng test --watch=false` — all tests pass, no regressions
+- [x] Task 3: Validation
+  - [x] `ng build` — 0 errors, 0 warnings
+  - [x] `ng test --watch=false` — 8/8 tests pass, 0 regressions
 
 ## Dev Notes
 
@@ -313,26 +313,35 @@ These stories import `BookCover` in their `imports: [BookCover]` array. Do NOT m
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_to be filled by dev agent_
+- `ng build` — 0 errors, 0 warnings
+- `ng test --watch=false` — 8/8 passed (5 BookCover + 3 App), 0 regressions
+- Vitest pool fix required: added `vitest.config.ts` with `pool: 'threads'` + explicit `runnerConfig: "vitest.config.ts"` in `angular.json` to resolve Windows worker fork timeout (`[vitest-pool-runner]: Timeout waiting for worker to respond`)
+- NG0100 fix: replaced `ngOnChanges` with `@Input` setter on `coverUrl` to prevent mid-CD-cycle mutation; also switched tests from direct property assignment to `fixture.componentRef.setInput()`
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- ✅ Task 1: `book-cover.ts` — stub replaced with full 3-state component (skeleton shimmer → loaded → warm placeholder). Used property setter on `coverUrl` instead of `ngOnChanges` to avoid `NG0100 ExpressionChangedAfterItHasBeenCheckedError`. Three size CSS classes applied via string interpolation. `mat-icon` with `menu_book` for placeholder. CSS uses only `--color-outline` and `--color-on-surface-variant` custom properties (plus `#f0ebe6` as shimmer midpoint animation shade only).
+- ✅ Task 2: `book-cover.spec.ts` created — 5 tests, all using `fixture.componentRef.setInput()` (Angular 17+ pattern) for input changes; `provideAnimationsAsync()` provided to silence Material animation warnings. Error event dispatch tested via `img.dispatchEvent(new Event('error'))`.
+- ✅ Task 3: Build clean; 8/8 tests pass; 0 regressions.
+- ✅ Additional: configured Vitest `threads` pool via `vitest.config.ts` + `angular.json` `runnerConfig` — prerequisite infrastructure fix benefiting all current and future test runs on this Windows environment.
 
 ## File List
 
 **New files:**
 - `frontend/src/app/shared/components/book-cover/book-cover.spec.ts`
+- `frontend/vitest.config.ts` — Vitest `threads` pool config (Windows worker fork timeout fix)
 
 **Modified files:**
-- `frontend/src/app/shared/components/book-cover/book-cover.ts` — replace stub with full implementation
+- `frontend/src/app/shared/components/book-cover/book-cover.ts` — full implementation replacing stub
+- `frontend/angular.json` — added `runner: "vitest"` and `runnerConfig: "vitest.config.ts"` to test builder options
 
 ## Change Log
 
 | Date | Change |
 |------|--------|
 | 2026-04-14 | Story created — BookCoverComponent implementation plan documented. |
+| 2026-04-15 | Implementation complete — BookCover component, spec file, Vitest config fix; 8/8 tests pass. |
