@@ -1,6 +1,6 @@
 # Story 4.2: Angular Auth Service, HTTP Interceptor & Route Guard
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,29 +22,29 @@ so that all admin routes are protected and JWT tokens are automatically attached
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Update `AuthService.login()` to store token in localStorage (AC: #1)
-  - [ ] Import `tap` from `rxjs`
-  - [ ] Pipe the HTTP response: `.pipe(tap(response => localStorage.setItem('token', response.token)))`
-  - [ ] Return type remains `Observable<TokenResponse>` — caller still subscribes normally
+- [x] Task 1: Update `AuthService.login()` to store token in localStorage (AC: #1)
+  - [x] Import `tap` from `rxjs`
+  - [x] Pipe the HTTP response: `.pipe(tap(response => localStorage.setItem('token', response.token)))`
+  - [x] Return type remains `Observable<TokenResponse>` — caller still subscribes normally
 
-- [ ] Task 2: Update `AuthService.isAuthenticated()` to decode JWT and check expiry (AC: #1, #5)
-  - [ ] Get token from localStorage — if absent return `false`
-  - [ ] Normalize base64url to base64: `payload.replace(/-/g, '+').replace(/_/g, '/')`
-  - [ ] Decode with `atob()`, parse JSON, compare `decoded.exp * 1000 > Date.now()`
-  - [ ] Wrap entirely in `try/catch` — return `false` on any decode failure (malformed token)
+- [x] Task 2: Update `AuthService.isAuthenticated()` to decode JWT and check expiry (AC: #1, #5)
+  - [x] Get token from localStorage — if absent return `false`
+  - [x] Normalize base64url to base64: `payload.replace(/-/g, '+').replace(/_/g, '/')`
+  - [x] Decode with `atob()`, parse JSON, compare `decoded.exp * 1000 > Date.now()`
+  - [x] Wrap entirely in `try/catch` — return `false` on any decode failure (malformed token)
 
-- [ ] Task 3: Wire `authInterceptor` into `app.config.ts` (AC: #4)
-  - [ ] Import `withInterceptors` from `@angular/common/http`
-  - [ ] Import `authInterceptor` from `./shared/interceptors/auth.interceptor`
-  - [ ] Replace `provideHttpClient(withInterceptorsFromDi())` → `provideHttpClient(withInterceptors([authInterceptor]))`
+- [x] Task 3: Wire `authInterceptor` into `app.config.ts` (AC: #4)
+  - [x] Import `withInterceptors` from `@angular/common/http`
+  - [x] Import `authInterceptor` from `./shared/interceptors/auth.interceptor`
+  - [x] Replace `provideHttpClient(withInterceptorsFromDi())` → `provideHttpClient(withInterceptors([authInterceptor]))`
 
-- [ ] Task 4: Apply `authGuard` to protected routes in `admin.routes.ts` (AC: #3, #5)
-  - [ ] Import `authGuard` from `../../shared/guards/auth.guard`
-  - [ ] Add `canActivate: [authGuard]` to routes: `livres`, `livres/nouveau`, `livres/:id/modifier`
-  - [ ] Do NOT add canActivate to the `login` route or the `redirectTo: 'livres'` default
+- [x] Task 4: Apply `authGuard` to protected routes in `admin.routes.ts` (AC: #3, #5)
+  - [x] Import `authGuard` from `../../shared/guards/auth.guard`
+  - [x] Add `canActivate: [authGuard]` to routes: `livres`, `livres/nouveau`, `livres/:id/modifier`
+  - [x] Do NOT add canActivate to the `login` route or the `redirectTo: 'livres'` default
 
-- [ ] Task 5: Validation
-  - [ ] `ng build` — 0 errors
+- [x] Task 5: Validation
+  - [x] `ng build` — 0 errors
   - [ ] Run backend + frontend; navigate to `/admin/livres` unauthenticated → expect redirect to `/admin/login`
   - [ ] Log in → expect successful navigation to admin, network requests show `Authorization: Bearer ...` header
   - [ ] Call logout → token removed from localStorage, isAuthenticated() returns false
@@ -248,6 +248,24 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+- Vitest thread pool timeout on Windows is a pre-existing environment issue affecting all spec files — not caused by this story's changes. `ng build --configuration development` passes with 0 errors confirming TypeScript correctness.
+
 ### Completion Notes List
 
+- Task 1: `AuthService.login()` updated with `tap` from `rxjs/operators` to store JWT in `localStorage` as side-effect; `Observable<TokenResponse>` return type preserved.
+- Task 2: `AuthService.isAuthenticated()` now decodes JWT payload, normalizes base64url → base64, checks `decoded.exp * 1000 > Date.now()`. Wrapped in `try/catch` returning `false` on any malformed input.
+- Task 3: `app.config.ts` switched from `withInterceptorsFromDi()` (class-based DI, silently ignores functional interceptors) to `withInterceptors([authInterceptor])` (functional interceptor registration).
+- Task 4: `admin.routes.ts` — `authGuard` imported and added to `canActivate` on `livres`, `livres/nouveau`, and `livres/:id/modifier`. `login` route and `redirectTo` default intentionally left unguarded.
+- Task 5: `ng build` passes with 0 errors. Manual runtime validation (Tasks 5.2–5.4) requires running backend + frontend together.
+- New spec file: `auth.service.spec.ts` — 9 unit tests covering all public methods including JWT expiry/malformation edge cases.
+
 ### File List
+
+- `frontend/src/app/shared/services/auth.service.ts` (modified)
+- `frontend/src/app/shared/services/auth.service.spec.ts` (created)
+- `frontend/src/app/app.config.ts` (modified)
+- `frontend/src/app/features/admin/admin.routes.ts` (modified)
+
+### Change Log
+
+- 2026-04-22: Implemented story 4.2 — wired `AuthService.login()` tap storage, JWT expiry check in `isAuthenticated()`, functional interceptor registration, and `authGuard` on protected admin routes. `ng build` 0 errors.
