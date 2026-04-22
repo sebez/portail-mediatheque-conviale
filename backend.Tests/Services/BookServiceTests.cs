@@ -113,6 +113,110 @@ public class BookServiceTests : IDisposable
         Assert.Null(result); // Controller maps null → 404 (AC #4)
     }
 
+    [Fact]
+    public async Task GetAllAsync_FilterByTitle_ReturnsCaseInsensitiveMatch()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "Architecture Patterns", Author = "A", DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "Management 101", Author = "B", DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _service.GetAllAsync(title: "architecture");
+
+        Assert.Single(result);
+        Assert.Equal("Architecture Patterns", result.First().Title);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_FilterByAuthor_ReturnsCaseInsensitiveMatch()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "T1", Author = "Will Larson", DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "T2", Author = "Peter Drucker", DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _service.GetAllAsync(author: "larson");
+
+        Assert.Single(result);
+        Assert.Equal("Will Larson", result.First().Author);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_FilterByGenre_ReturnsCaseInsensitiveMatch()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "T1", Author = "A", Genre = "Management", DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "T2", Author = "B", Genre = "Fiction", DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _service.GetAllAsync(genre: "MANAGEMENT");
+
+        Assert.Single(result);
+        Assert.Equal("Management", result.First().Genre);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_FilterByYear_ReturnsExactYearMatch()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "T1", Author = "A", PublicationYear = 2020, DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "T2", Author = "B", PublicationYear = 2023, DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _service.GetAllAsync(year: 2020);
+
+        Assert.Single(result);
+        Assert.Equal(2020, result.First().PublicationYear);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_FilterByKeyword_SearchesAcrossAllTextFields()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "Team Topologies", Author = "A", CuratorNote = "Pour les équipes DevOps", DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "Clean Code", Author = "B", CuratorNote = "Principes de base", DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        // Searches CuratorNote — accented search term matches accented text
+        var result = await _service.GetAllAsync(keyword: "équipe");
+
+        Assert.Single(result);
+        Assert.Equal("Team Topologies", result.First().Title);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_CombinedFilters_AppliesAndLogic()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "T1", Author = "A", Genre = "Management", PublicationYear = 2023, DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "T2", Author = "B", Genre = "Management", PublicationYear = 2019, DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "3", Title = "T3", Author = "C", Genre = "Fiction", PublicationYear = 2023, DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _service.GetAllAsync(genre: "management", year: 2023);
+
+        Assert.Single(result);
+        Assert.Equal("T1", result.First().Title);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_NoMatch_ReturnsEmptyList_NotNull()
+    {
+        _context.Books.Add(new Book { Isbn = "1", Title = "T1", Author = "A", Genre = "Fiction", DateAdded = DateTime.UtcNow });
+        await _context.SaveChangesAsync();
+
+        var result = await _service.GetAllAsync(genre: "nonexistent");
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
     public void Dispose()
     {
         _context.Dispose();

@@ -1,6 +1,6 @@
 # Story 3.1: Backend Search & Filter API
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -28,43 +28,43 @@ so that the frontend can retrieve targeted results without client-side data mani
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Update `IBookService` interface (AC: #1–#8)
-  - [ ] Update signature in `backend/Services/Interfaces/IBookService.cs`
-  - [ ] Add `string? title`, `string? author`, `string? genre`, `int? year`, `string? keyword` parameters to `GetAllAsync`
-  - [ ] Keep `bool? isSelectionDuMois` and `string? sortBy` parameters — do NOT remove them
+- [x] Task 1: Update `IBookService` interface (AC: #1–#8)
+  - [x] Update signature in `backend/Services/Interfaces/IBookService.cs`
+  - [x] Add `string? title`, `string? author`, `string? genre`, `int? year`, `string? keyword` parameters to `GetAllAsync`
+  - [x] Keep `bool? isSelectionDuMois` and `string? sortBy` parameters — do NOT remove them
 
-- [ ] Task 2: Update `BookService.GetAllAsync` implementation (AC: #1–#8)
-  - [ ] Update `backend/Services/BookService.cs` — `GetAllAsync` method signature
-  - [ ] Add 5 LINQ `.Where()` clauses for `title`, `author`, `genre`, `year`, `keyword` (conditional on non-null)
-  - [ ] Use `.ToLower().Contains(param.ToLower())` pattern for case-insensitive text fields (see Dev Notes)
-  - [ ] `keyword` must search across: `Title`, `Author`, `Genre`, AND `CuratorNote` with OR logic within the clause
-  - [ ] All filter conditions apply with AND logic (each `.Where()` call narrows the previous result)
+- [x] Task 2: Update `BookService.GetAllAsync` implementation (AC: #1–#8)
+  - [x] Update `backend/Services/BookService.cs` — `GetAllAsync` method signature
+  - [x] Add 5 LINQ `.Where()` clauses for `title`, `author`, `genre`, `year`, `keyword` (conditional on non-null)
+  - [x] Use `.ToLower().Contains(param.ToLower())` pattern for case-insensitive text fields (see Dev Notes)
+  - [x] `keyword` must search across: `Title`, `Author`, `Genre`, AND `CuratorNote` with OR logic within the clause
+  - [x] All filter conditions apply with AND logic (each `.Where()` call narrows the previous result)
 
-- [ ] Task 3: Update `BooksController.GetAll` (AC: #1–#8)
-  - [ ] Update `backend/Controllers/BooksController.cs`
-  - [ ] Add 5 `[FromQuery]` parameters: `string? title`, `string? author`, `string? genre`, `int? year`, `string? keyword`
-  - [ ] Pass all new params to `_bookService.GetAllAsync(...)` call
-  - [ ] Keep existing `isSelectionDuMois` and `sortBy` params — no regression
+- [x] Task 3: Update `BooksController.GetAll` (AC: #1–#8)
+  - [x] Update `backend/Controllers/BooksController.cs`
+  - [x] Add 5 `[FromQuery]` parameters: `string? title`, `string? author`, `string? genre`, `int? year`, `string? keyword`
+  - [x] Pass all new params to `_bookService.GetAllAsync(...)` call
+  - [x] Keep existing `isSelectionDuMois` and `sortBy` params — no regression
 
-- [ ] Task 4: Add tests in `BookServiceTests.cs` (AC: #1–#8)
-  - [ ] Update `backend.Tests/Services/BookServiceTests.cs`
-  - [ ] Add test for `?title` filter (case-insensitive, partial match)
-  - [ ] Add test for `?author` filter (case-insensitive, partial match)
-  - [ ] Add test for `?genre` filter (case-insensitive)
-  - [ ] Add test for `?year` filter (exact match)
-  - [ ] Add test for `?keyword` — match in title, author, genre, curatorNote
-  - [ ] Add test for combined filters (AND logic)
-  - [ ] Add test for no-match → returns empty list (not null, not 404)
-  - [ ] Verify existing 6 tests still pass (zero regressions)
+- [x] Task 4: Add tests in `BookServiceTests.cs` (AC: #1–#8)
+  - [x] Update `backend.Tests/Services/BookServiceTests.cs`
+  - [x] Add test for `?title` filter (case-insensitive, partial match)
+  - [x] Add test for `?author` filter (case-insensitive, partial match)
+  - [x] Add test for `?genre` filter (case-insensitive)
+  - [x] Add test for `?year` filter (exact match)
+  - [x] Add test for `?keyword` — match in title, author, genre, curatorNote
+  - [x] Add test for combined filters (AND logic)
+  - [x] Add test for no-match → returns empty list (not null, not 404)
+  - [x] Verify existing 6 tests still pass (zero regressions)
 
-- [ ] Task 5: Add tests in `BooksControllerTests.cs` (AC: #1–#5)
-  - [ ] Update `backend.Tests/Controllers/BooksControllerTests.cs`
-  - [ ] Add at least 2 controller-level filter tests (e.g., title filter + combined filter)
-  - [ ] Verify existing 2 controller tests still pass
+- [x] Task 5: Add tests in `BooksControllerTests.cs` (AC: #1–#5)
+  - [x] Update `backend.Tests/Controllers/BooksControllerTests.cs`
+  - [x] Add at least 2 controller-level filter tests (e.g., title filter + combined filter)
+  - [x] Verify existing 2 controller tests still pass
 
-- [ ] Task 6: Validation
-  - [ ] `dotnet build` — 0 errors in `backend/` and `backend.Tests/`
-  - [ ] `dotnet test` in `backend.Tests/` — all tests pass, 0 regressions
+- [x] Task 6: Validation
+  - [x] `dotnet build` — 0 errors in `backend/` and `backend.Tests/`
+  - [x] `dotnet test` in `backend.Tests/` — all tests pass, 0 regressions
 
 ## Dev Notes
 
@@ -372,4 +372,16 @@ claude-sonnet-4-6
 
 ### Completion Notes List
 
+- Implemented 5 new query parameters (`title`, `author`, `genre`, `year`, `keyword`) on `GET /api/books` with AND logic.
+- Used `.ToLower().Contains()` pattern for case-insensitive text filtering — EF Core translates to `lower(col) LIKE lower('%val%')` in SQLite.
+- `keyword` searches across Title, Author, Genre, and CuratorNote fields with OR logic; nullable fields (Genre, CuratorNote) guarded before `.ToLower()` to prevent LINQ translation errors.
+- Keyword test uses accented search term (`keyword: "équipe"`) to match accented CuratorNote — tests that SQLite `lower()` handles partial accented matches within the same Unicode form correctly.
+- All 31 tests pass (22 pre-existing + 7 new service tests + 2 new controller tests), 0 regressions.
+
 ### File List
+
+- backend/Services/Interfaces/IBookService.cs
+- backend/Services/BookService.cs
+- backend/Controllers/BooksController.cs
+- backend.Tests/Services/BookServiceTests.cs
+- backend.Tests/Controllers/BooksControllerTests.cs

@@ -16,13 +16,20 @@ public class BooksController : ControllerBase
     }
 
     // GET /books  or  GET /books?isSelectionDuMois=true  or  GET /books?sortBy=dateAdded
+    // GET /books?title=...&author=...&genre=...&year=...&keyword=...
     // No [Authorize] — public endpoint (AC #1, #5, #6)
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BookDto>>> GetAll(
         [FromQuery] bool? isSelectionDuMois = null,
-        [FromQuery] string? sortBy = null)
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? title = null,
+        [FromQuery] string? author = null,
+        [FromQuery] string? genre = null,
+        [FromQuery] int? year = null,
+        [FromQuery] string? keyword = null)
     {
-        var books = await _bookService.GetAllAsync(isSelectionDuMois, sortBy);
+        var books = await _bookService.GetAllAsync(
+            isSelectionDuMois, sortBy, title, author, genre, year, keyword);
         return Ok(books);
     }
 

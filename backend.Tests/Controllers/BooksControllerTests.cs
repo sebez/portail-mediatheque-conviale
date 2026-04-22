@@ -60,6 +60,41 @@ public class BooksControllerTests : IDisposable
         Assert.IsType<ProblemDetails>(objectResult.Value);
     }
 
+    [Fact]
+    public async Task GetAll_FilterByTitle_Returns200WithFilteredBooks()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "Architecture Patterns", Author = "A", DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "Management 101", Author = "B", DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _controller.GetAll(title: "architecture");
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var books = Assert.IsAssignableFrom<IEnumerable<BookDto>>(ok.Value);
+        Assert.Single(books);
+        Assert.Equal("Architecture Patterns", books.First().Title);
+    }
+
+    [Fact]
+    public async Task GetAll_CombinedFilters_Returns200WithFilteredBooks()
+    {
+        _context.Books.AddRange(
+            new Book { Isbn = "1", Title = "T1", Author = "A", Genre = "Management", PublicationYear = 2023, DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "2", Title = "T2", Author = "B", Genre = "Fiction", PublicationYear = 2023, DateAdded = DateTime.UtcNow },
+            new Book { Isbn = "3", Title = "T3", Author = "C", Genre = "Management", PublicationYear = 2019, DateAdded = DateTime.UtcNow }
+        );
+        await _context.SaveChangesAsync();
+
+        var result = await _controller.GetAll(genre: "management", year: 2023);
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var books = Assert.IsAssignableFrom<IEnumerable<BookDto>>(ok.Value);
+        Assert.Single(books);
+        Assert.Equal("T1", books.First().Title);
+    }
+
     public void Dispose()
     {
         _context.Dispose();

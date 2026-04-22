@@ -5,7 +5,14 @@ namespace PortailMediatheque.Api.Services.Interfaces;
 // Implemented in Stories 2.1, 5.1
 public interface IBookService
 {
-    Task<IEnumerable<BookDto>> GetAllAsync(bool? isSelectionDuMois = null, string? sortBy = null);
+    Task<IEnumerable<BookDto>> GetAllAsync(
+        bool? isSelectionDuMois = null,
+        string? sortBy = null,
+        string? title = null,
+        string? author = null,
+        string? genre = null,
+        int? year = null,
+        string? keyword = null);
     Task<BookDto?> GetByIdAsync(int id);
     Task<BookDto> CreateAsync(CreateBookRequest request);
     Task<BookDto?> UpdateAsync(int id, UpdateBookRequest request);
