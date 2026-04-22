@@ -17,6 +17,11 @@
             "type": "command",
             "statusMessage": "Committing story files...",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/auto-commit-story.sh\" 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "statusMessage": "Committing dev-story implementation...",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/auto-commit-dev-story.sh\" 2>/dev/null || true"
           }
         ]
       }
