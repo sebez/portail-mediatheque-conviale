@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Subject, switchMap, of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import { BookListItem } from '../../../shared/components/book-list-item/book-list-item';
 import { SelectionDuMoisCard } from '../../../shared/components/selection-du-mois-card/selection-du-mois-card';
+import { FilterBar } from '../../../shared/components/filter-bar/filter-bar';
 import { BookService } from '../../../shared/services/book.service';
-import { Book } from '../../../shared/models/book.model';
+import { Book, FilterCriteria } from '../../../shared/models/book.model';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [BookListItem, SelectionDuMoisCard, MatProgressSpinnerModule],
+  imports: [BookListItem, SelectionDuMoisCard, MatProgressSpinnerModule, MatButtonModule, FilterBar],
   template: `
     <div class="catalog-container">
       @if (isLoading) {
@@ -33,17 +36,31 @@ import { Book } from '../../../shared/models/book.model';
           </ul>
         </section>
 
-        <!-- Full catalog list (Story 2.3 — unchanged) -->
-        <!-- Story 3.2: FilterBarComponent slot — add above catalog list when implemented -->
+        <!-- FilterBar (Story 3.2, UX-DR6) -->
+        <app-filter-bar
+          [genres]="availableGenres"
+          [years]="availableYears"
+          (filtersChanged)="onFiltersChanged($event)">
+        </app-filter-bar>
+
         <section aria-label="Catalogue complet">
           <h2 class="section-heading">Tout le catalogue</h2>
-          <ul class="catalog-list" aria-label="Catalogue de livres">
-            @for (book of books; track book.id) {
-              <li class="catalog-list__item">
-                <app-book-list-item [book]="book" variant="default"></app-book-list-item>
-              </li>
-            }
-          </ul>
+
+          @if (filteredBooks.length === 0 && hasActiveFilters) {
+            <!-- AC #5: no-results empty state -->
+            <div class="catalog-empty-search">
+              <p>Aucun livre ne correspond à votre recherche.</p>
+              <button mat-stroked-button (click)="clearFilters()">Effacer les filtres</button>
+            </div>
+          } @else {
+            <ul class="catalog-list" aria-label="Catalogue de livres">
+              @for (book of filteredBooks; track book.id) {
+                <li class="catalog-list__item">
+                  <app-book-list-item [book]="book" variant="default"></app-book-list-item>
+                </li>
+              }
+            </ul>
+          }
         </section>
 
         <!-- Footer freshness signal (UX-DR14, FR13/FR14) -->
@@ -108,36 +125,78 @@ import { Book } from '../../../shared/models/book.model';
       color: var(--color-on-surface-variant);
       text-align: center;
     }
+
+    .catalog-empty-search {
+      padding: 32px 0;
+      text-align: center;
+      color: var(--color-on-surface-variant);
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
   `]
 })
 export class Home implements OnInit {
   books: Book[] = [];
+  allBooks: Book[] = [];
+  filteredBooks: Book[] = [];
   selectionBooks: Book[] = [];
   recentlyAdded: Book[] = [];
+  availableGenres: string[] = [];
+  availableYears: number[] = [];
+  hasActiveFilters = false;
   isLoading = false;
+
+  @ViewChild(FilterBar) filterBar?: FilterBar;
+
+  private filterChange$ = new Subject<FilterCriteria>();
 
   constructor(private bookService: BookService) {}
 
   ngOnInit(): void {
-    this.loadBooks();
-  }
-
-  private loadBooks(): void {
     this.isLoading = true;
+
+    // Wire filter stream with switchMap to cancel in-flight requests
+    this.filterChange$.pipe(
+      switchMap(criteria => {
+        const hasFilter = !!(criteria.keyword.trim() || criteria.genre || criteria.year != null);
+        if (!hasFilter) return of(this.allBooks);
+        return this.bookService.getFiltered(criteria);
+      })
+    ).subscribe(books => {
+      this.filteredBooks = books;
+    });
+
     this.bookService.getAll().subscribe({
       next: (books) => {
+        this.allBooks = books;
         this.books = books;
+        this.filteredBooks = books;
         this.selectionBooks = books.filter(b => b.isSelectionDuMois);
-        // Sort by dateAdded DESC (ISO 8601 strings sort lexicographically, same as chronologically)
         this.recentlyAdded = [...books]
           .sort((a, b) => b.dateAdded.localeCompare(a.dateAdded))
           .slice(0, 5);
+        this.availableGenres = [...new Set(
+          books.map(b => b.genre).filter((g): g is string => !!g)
+        )].sort();
+        this.availableYears = [...new Set(
+          books.map(b => b.publicationYear).filter((y): y is number => y != null)
+        )].sort((a, b) => b - a);
         this.isLoading = false;
       },
-      error: () => {
-        this.isLoading = false;
-      }
+      error: () => { this.isLoading = false; }
     });
+  }
+
+  onFiltersChanged(criteria: FilterCriteria): void {
+    this.hasActiveFilters = !!(criteria.keyword.trim() || criteria.genre || criteria.year != null);
+    this.filterChange$.next(criteria);
+  }
+
+  clearFilters(): void {
+    this.filterBar?.reset();
   }
 
   /** Most recent dateAdded formatted in French: "15 avril 2026" */

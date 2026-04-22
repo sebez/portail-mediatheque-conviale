@@ -1,6 +1,6 @@
 # Story 3.2: FilterBarComponent & Frontend Filter Integration
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -24,44 +24,44 @@ so that I can find a specific book without scrolling the entire catalog.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `FilterCriteria` interface to `book.model.ts` (AC: all)
-  - [ ] Open `frontend/src/app/shared/models/book.model.ts`
-  - [ ] Append `FilterCriteria` interface after the existing `Book` interface (see Dev Notes for exact shape)
+- [x] Task 1: Add `FilterCriteria` interface to `book.model.ts` (AC: all)
+  - [x] Open `frontend/src/app/shared/models/book.model.ts`
+  - [x] Append `FilterCriteria` interface after the existing `Book` interface (see Dev Notes for exact shape)
 
-- [ ] Task 2: Add `getFiltered()` to `BookService` (AC: #1–#5)
-  - [ ] Open `frontend/src/app/shared/services/book.service.ts`
-  - [ ] Add `HttpParams` to the `HttpClient` import
-  - [ ] Add `getFiltered(criteria: FilterCriteria): Observable<Book[]>` method (see Dev Notes)
-  - [ ] Keep existing `getAll()` and `getById()` unchanged
+- [x] Task 2: Add `getFiltered()` to `BookService` (AC: #1–#5)
+  - [x] Open `frontend/src/app/shared/services/book.service.ts`
+  - [x] Add `HttpParams` to the `HttpClient` import
+  - [x] Add `getFiltered(criteria: FilterCriteria): Observable<Book[]>` method (see Dev Notes)
+  - [x] Keep existing `getAll()` and `getById()` unchanged
 
-- [ ] Task 3: Implement `FilterBarComponent` — replace placeholder (AC: #1–#6)
-  - [ ] Open `frontend/src/app/shared/components/filter-bar/filter-bar.ts`
-  - [ ] Replace the placeholder with the full standalone component (see Dev Notes for complete implementation)
-  - [ ] Inputs: `genres: string[]`, `years: number[]`
-  - [ ] Output: `filtersChanged: EventEmitter<FilterCriteria>`
-  - [ ] Public method: `reset()` — clears all internal state and emits empty criteria
-  - [ ] 300ms debounce on search input via `FormControl` + `debounceTime`
-  - [ ] Genre chips: `mat-chip-listbox` / `mat-chip-option`, single-select, `aria-pressed`
-  - [ ] Year chips: `mat-chip-listbox` / `mat-chip-option`, single-select, `aria-pressed`
-  - [ ] "× Effacer tout" chip button visible when `hasActiveFilters` is true
+- [x] Task 3: Implement `FilterBarComponent` — replace placeholder (AC: #1–#6)
+  - [x] Open `frontend/src/app/shared/components/filter-bar/filter-bar.ts`
+  - [x] Replace the placeholder with the full standalone component (see Dev Notes for complete implementation)
+  - [x] Inputs: `genres: string[]`, `years: number[]`
+  - [x] Output: `filtersChanged: EventEmitter<FilterCriteria>`
+  - [x] Public method: `reset()` — clears all internal state and emits empty criteria
+  - [x] 300ms debounce on search input via `FormControl` + `debounceTime`
+  - [x] Genre chips: `mat-chip-listbox` / `mat-chip-option`, single-select, `aria-pressed`
+  - [x] Year chips: `mat-chip-listbox` / `mat-chip-option`, single-select, `aria-pressed`
+  - [x] "× Effacer tout" chip button visible when `hasActiveFilters` is true
 
-- [ ] Task 4: Update `Home` component to integrate FilterBar (AC: #1–#5)
-  - [ ] Open `frontend/src/app/features/catalog/home/home.ts`
-  - [ ] Add `FilterBar` to imports
-  - [ ] Add `@ViewChild(FilterBar) filterBar?: FilterBar` for programmatic reset
-  - [ ] Add `availableGenres: string[]` and `availableYears: number[]` fields (populated from initial load)
-  - [ ] Add `filteredBooks: Book[]` for the catalog section (separate from `books` which stays as full list)
-  - [ ] Add `hasActiveFilters = false` flag
-  - [ ] Add `filterChange$ = new Subject<FilterCriteria>()` + `switchMap` chain (see Dev Notes)
-  - [ ] Add `onFiltersChanged(criteria: FilterCriteria)` handler (called from `(filtersChanged)` output)
-  - [ ] Add `clearFilters()` method that calls `this.filterBar?.reset()`
-  - [ ] Update template: place `<app-filter-bar>` above "Tout le catalogue" section (replace the slot comment)
-  - [ ] Update template: bind `filteredBooks` (not `books`) in the catalog `@for` loop
-  - [ ] Update template: add empty-state block for "Aucun livre ne correspond à votre recherche." + "Effacer les filtres" button
-  - [ ] Note: "Recently Added" and "Sélection du mois" sections must use `books` (unchanged full list)
+- [x] Task 4: Update `Home` component to integrate FilterBar (AC: #1–#5)
+  - [x] Open `frontend/src/app/features/catalog/home/home.ts`
+  - [x] Add `FilterBar` to imports
+  - [x] Add `@ViewChild(FilterBar) filterBar?: FilterBar` for programmatic reset
+  - [x] Add `availableGenres: string[]` and `availableYears: number[]` fields (populated from initial load)
+  - [x] Add `filteredBooks: Book[]` for the catalog section (separate from `books` which stays as full list)
+  - [x] Add `hasActiveFilters = false` flag
+  - [x] Add `filterChange$ = new Subject<FilterCriteria>()` + `switchMap` chain (see Dev Notes)
+  - [x] Add `onFiltersChanged(criteria: FilterCriteria)` handler (called from `(filtersChanged)` output)
+  - [x] Add `clearFilters()` method that calls `this.filterBar?.reset()`
+  - [x] Update template: place `<app-filter-bar>` above "Tout le catalogue" section (replace the slot comment)
+  - [x] Update template: bind `filteredBooks` (not `books`) in the catalog `@for` loop
+  - [x] Update template: add empty-state block for "Aucun livre ne correspond à votre recherche." + "Effacer les filtres" button
+  - [x] Note: "Recently Added" and "Sélection du mois" sections must use `books` (unchanged full list)
 
-- [ ] Task 5: Validation
-  - [ ] `ng build` — 0 TypeScript errors
+- [x] Task 5: Validation
+  - [x] `ng build` — 0 TypeScript errors
   - [ ] `ng serve` — open browser at `http://localhost:4200`, verify full golden path:
     - Type in search box → catalog filters after 300ms
     - Select a genre chip → catalog filters, chip turns terracotta
@@ -522,7 +522,15 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+- Fixed NG8007 error: `mat-chip-listbox` does not support `[(value)]` two-way binding in this Angular Material version. Replaced with `[value]` + `(change)="onHandler($event.value)"` pattern.
+
 ### Completion Notes List
+
+- Task 1: `FilterCriteria` interface appended to `book.model.ts` with `keyword`, `genre`, `year` fields.
+- Task 2: `getFiltered()` added to `BookService` using `HttpParams`; existing `getAll()` and `getById()` untouched.
+- Task 3: `FilterBar` placeholder replaced with full standalone component — 300ms debounced search, genre/year chip-listboxes, "× Effacer tout" clear button, `reset()` public method, ARIA attributes (role="search", aria-label, aria-pressed).
+- Task 4: `Home` updated with `allBooks`/`filteredBooks` split, `filterChange$` Subject + `switchMap` for debounced API calls, `availableGenres`/`availableYears` derived from initial load, `onFiltersChanged()`/`clearFilters()` handlers, empty-state block for zero-results, `@ViewChild(FilterBar)` for programmatic reset. "Recently Added" and "Sélection du mois" sections unchanged (still use `books`).
+- Task 5: `ng build --configuration=development` — 0 TypeScript errors. Browser golden-path testing to be completed by Sezratty.
 
 ### File List
 
@@ -530,3 +538,7 @@ claude-sonnet-4-6
 - frontend/src/app/shared/services/book.service.ts
 - frontend/src/app/shared/components/filter-bar/filter-bar.ts
 - frontend/src/app/features/catalog/home/home.ts
+
+### Change Log
+
+- 2026-04-22: Implemented Story 3.2 — FilterBarComponent and frontend filter integration. Added FilterCriteria model, BookService.getFiltered(), full FilterBar standalone component, and updated Home component with filter stream, empty-state, and chip selectors.

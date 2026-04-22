@@ -13,3 +13,9 @@ export interface Book {
   isSelectionDuMois: boolean;
   status: string; // 'available' default; forward-compat for FR26
 }
+
+export interface FilterCriteria {
+  keyword: string;        // empty string when no keyword
+  genre: string | null;   // null when no genre selected
+  year: number | null;    // null when no year selected
+}
