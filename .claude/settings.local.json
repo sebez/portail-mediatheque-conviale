@@ -8,5 +8,18 @@
       "Bash(dotnet --version)",
       "Bash(npm install:*)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Committing story files...",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/auto-commit-story.sh\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
   }
 }
