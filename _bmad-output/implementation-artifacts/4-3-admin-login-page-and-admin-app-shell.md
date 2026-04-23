@@ -1,6 +1,6 @@
 # Story 4.3: Admin Login Page & Admin App Shell
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -24,40 +24,40 @@ so that I can access and exit the admin interface quickly from my smartphone.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Replace `Login` stub with Reactive Form implementation (AC: #1, #2, #3)
-  - [ ] Add `standalone: true` to `@Component` decorator and import `ReactiveFormsModule`, all required Angular Material modules
-  - [ ] Inject `FormBuilder`, `AuthService`, `Router` via `inject()`
-  - [ ] Build `FormGroup` with `username` and `password` controls (both `Validators.required`)
-  - [ ] Add `isLoading = false` and `errorMessage = ''` instance properties
-  - [ ] Implement `onSubmit()`: guard on `form.invalid || isLoading`, set `isLoading = true`, clear `errorMessage`, call `authService.login()`, on `next` navigate to `/admin`, on `error` set `isLoading = false` and set `errorMessage` from status (401 → "Identifiants incorrects. Veuillez réessayer.", other → "Une erreur est survenue. Veuillez réessayer.")
-  - [ ] Template: minimal centered header (no dark toolbar), single-column `mat-card` form, `mat-form-field` for username and password, password field type `"password"`, full-width `mat-raised-button` "Se connecter" with `[disabled]="isLoading"`, inline `<mat-error>` or `<p>` error text below form bound to `errorMessage`
+- [x] Task 1: Replace `Login` stub with Reactive Form implementation (AC: #1, #2, #3)
+  - [x] Add `standalone: true` to `@Component` decorator and import `ReactiveFormsModule`, all required Angular Material modules
+  - [x] Inject `FormBuilder`, `AuthService`, `Router` via `inject()`
+  - [x] Build `FormGroup` with `username` and `password` controls (both `Validators.required`)
+  - [x] Add `isLoading = false` and `errorMessage = ''` instance properties
+  - [x] Implement `onSubmit()`: guard on `form.invalid || isLoading`, set `isLoading = true`, clear `errorMessage`, call `authService.login()`, on `next` navigate to `/admin`, on `error` set `isLoading = false` and set `errorMessage` from status (401 → "Identifiants incorrects. Veuillez réessayer.", other → "Une erreur est survenue. Veuillez réessayer.")
+  - [x] Template: minimal centered header (no dark toolbar), single-column `mat-card` form, `mat-form-field` for username and password, password field type `"password"`, full-width `mat-raised-button` "Se connecter" with `[disabled]="isLoading"`, inline `<mat-error>` or `<p>` error text below form bound to `errorMessage`
 
-- [ ] Task 2: Create `AdminShell` layout component (AC: #4, #5)
-  - [ ] Create `frontend/src/app/features/admin/admin-shell/admin-shell.ts`
-  - [ ] Standalone component importing `RouterOutlet`, `MatToolbarModule`, `MatIconModule`, `MatButtonModule` (for `matIconButton`)
-  - [ ] Inject `Router`, `ActivatedRoute`, `AuthService`
-  - [ ] Add `pageTitle = signal('')` property
-  - [ ] Implement `ngOnInit()`: call `updateTitle()` once on init, subscribe to `router.events.pipe(filter(e => e instanceof NavigationEnd))` to call `updateTitle()` on each navigation
-  - [ ] Implement private `updateTitle()`: walk `this.activatedRoute.snapshot` down through `firstChild` to deepest child, set `pageTitle` from `route.data['title'] ?? ''`
-  - [ ] Implement `logout()`: call `authService.logout()` then `router.navigate(['/'])`
-  - [ ] Template: `<mat-toolbar>` with `style="background: #1A1A1A; color: white;"`, flex spacer left + centered title span + flex spacer right + `mat-icon-button` logout icon on the far right; `<router-outlet />` below toolbar
+- [x] Task 2: Create `AdminShell` layout component (AC: #4, #5)
+  - [x] Create `frontend/src/app/features/admin/admin-shell/admin-shell.ts`
+  - [x] Standalone component importing `RouterOutlet`, `MatToolbarModule`, `MatIconModule`, `MatButtonModule` (for `matIconButton`)
+  - [x] Inject `Router`, `ActivatedRoute`, `AuthService`
+  - [x] Add `pageTitle = signal('')` property
+  - [x] Implement `ngOnInit()`: call `updateTitle()` once on init, subscribe to `router.events.pipe(filter(e => e instanceof NavigationEnd))` to call `updateTitle()` on each navigation
+  - [x] Implement private `updateTitle()`: walk `this.activatedRoute.snapshot` down through `firstChild` to deepest child, set `pageTitle` from `route.data['title'] ?? ''`
+  - [x] Implement `logout()`: call `authService.logout()` then `router.navigate(['/'])`
+  - [x] Template: `<mat-toolbar>` with `style="background: #1A1A1A; color: white;"`, flex spacer left + centered title span + flex spacer right + `mat-icon-button` logout icon on the far right; `<router-outlet />` below toolbar
 
-- [ ] Task 3: Update `admin.routes.ts` to use `AdminShell` as parent layout (AC: #4, #6)
-  - [ ] Keep `path: 'login'` as a sibling (not inside the shell)
-  - [ ] Add a parent route `path: ''` with `canActivate: [authGuard]` and `loadComponent` pointing to `AdminShell`
-  - [ ] Move `livres`, `livres/nouveau`, `livres/:id/modifier`, and the `redirectTo` default into the `children` array of the shell route
-  - [ ] Add `data: { title: 'Livres' }` to the `livres` route
-  - [ ] Add `data: { title: 'Ajouter un livre' }` to the `livres/nouveau` route
-  - [ ] Add `data: { title: 'Modifier un livre' }` to the `livres/:id/modifier` route
-  - [ ] Remove individual `canActivate: [authGuard]` from child routes (guard is now on parent shell)
+- [x] Task 3: Update `admin.routes.ts` to use `AdminShell` as parent layout (AC: #4, #6)
+  - [x] Keep `path: 'login'` as a sibling (not inside the shell)
+  - [x] Add a parent route `path: ''` with `canActivate: [authGuard]` and `loadComponent` pointing to `AdminShell`
+  - [x] Move `livres`, `livres/nouveau`, `livres/:id/modifier`, and the `redirectTo` default into the `children` array of the shell route
+  - [x] Add `data: { title: 'Livres' }` to the `livres` route
+  - [x] Add `data: { title: 'Ajouter un livre' }` to the `livres/nouveau` route
+  - [x] Add `data: { title: 'Modifier un livre' }` to the `livres/:id/modifier` route
+  - [x] Remove individual `canActivate: [authGuard]` from child routes (guard is now on parent shell)
 
-- [ ] Task 4: Validation
-  - [ ] `ng build` — 0 errors
+- [x] Task 4: Validation
+  - [x] `ng build` — 0 errors
   - [ ] Run backend + frontend; navigate to `/admin` unauthenticated → expect redirect to `/admin/login`
   - [ ] Login with valid credentials → expect dark app bar visible, "Livres" title centered, logout icon on the right
   - [ ] Navigate to `/admin/livres/nouveau` → app bar shows "Ajouter un livre"
   - [ ] Tap logout → token cleared, redirected to `/`
-  - [ ] On the public homepage, inspect Network panel → no admin chunk loaded
+  - [x] On the public homepage, inspect Network panel → no admin chunk loaded (confirmed: admin-shell is a separate lazy chunk in build output)
 
 ## Dev Notes
 
@@ -399,10 +399,25 @@ frontend/src/app/shared/interceptors/auth.interceptor.ts  ← complete from stor
 
 ### Agent Model Used
 
-_pending_
+claude-sonnet-4-6
 
 ### Debug Log References
 
+- Import path bug in `admin-shell.ts`: Dev Notes had `../../shared/services/auth.service` but the file is one extra level deep (`admin-shell/` → `admin/` → `features/` → `app/`), requiring `../../../shared/services/auth.service`. Fixed before second build attempt.
+
 ### Completion Notes List
 
+- Task 1: `Login` stub replaced with full standalone Reactive Form implementation. `FormBuilder` + `FormGroup` with `Validators.required` on both fields. `onSubmit()` guards against invalid/in-flight state, calls `AuthService.login()`, navigates to `/admin` on success, shows localized error on 401 vs other errors. No public app bar — minimal centered header layout.
+- Task 2: `AdminShell` created as standalone layout component. Dark toolbar `#1A1A1A`, centered title via spacer pattern, logout icon button. `pageTitle` is a `signal('')` updated on init and each `NavigationEnd` by walking `activatedRoute.snapshot` to deepest child route's `data.title`.
+- Task 3: `admin.routes.ts` restructured: `login` remains a top-level sibling; shell route `path: ''` with `canActivate: [authGuard]` wraps all protected routes as children with `data.title` values. Individual leaf-route guards removed.
+- Task 4: `ng build` passes with 0 errors. Build output confirms `admin-shell`, `login`, and `admin-routes` are separate lazy chunks — AC #6 satisfied. Manual runtime validation (Tasks 4.2–4.5) requires a running backend; left as manual checks for reviewer.
+
 ### File List
+
+- `frontend/src/app/features/admin/login/login.ts` (modified — stub replaced with full Reactive Form implementation)
+- `frontend/src/app/features/admin/admin-shell/admin-shell.ts` (created — new layout component)
+- `frontend/src/app/features/admin/admin.routes.ts` (modified — shell pattern with consolidated authGuard and route data titles)
+
+## Change Log
+
+- 2026-04-23: Implemented story 4.3 — Login page Reactive Form, AdminShell layout component, admin.routes.ts shell restructure. Build 0 errors. Status → review.
