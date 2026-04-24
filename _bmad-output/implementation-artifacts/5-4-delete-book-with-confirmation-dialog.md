@@ -1,6 +1,6 @@
 # Story 5.4: Delete Book with Confirmation Dialog
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,29 +20,29 @@ So that I never accidentally remove a book from the catalog with a misplaced tap
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `delete()` to Angular `BookService` (AC: #3, #4)
-  - [ ] Add `delete(id: number): Observable<void>` method — DELETE to `${apiUrl}/${id}`
+- [x] Task 1: Add `delete()` to Angular `BookService` (AC: #3, #4)
+  - [x] Add `delete(id: number): Observable<void>` method — DELETE to `${apiUrl}/${id}`
 
-- [ ] Task 2: Create `ConfirmDeleteDialog` standalone component (AC: #1, #2)
-  - [ ] Create new file `frontend/src/app/features/admin/book-list/confirm-delete-dialog.ts`
-  - [ ] Implement standalone component with `mat-dialog-title`, `mat-dialog-content`, `mat-dialog-actions`
-  - [ ] Accept `{ id: number; title: string }` via `MAT_DIALOG_DATA`
-  - [ ] "Annuler" button: `mat-stroked-button`, `cdkFocusInitial` (focused on dialog open), `mat-dialog-close` (emits `undefined`)
-  - [ ] "Supprimer" button: `mat-button`, `color: #B00020` via inline style, closes dialog with `true`
+- [x] Task 2: Create `ConfirmDeleteDialog` standalone component (AC: #1, #2)
+  - [x] Create new file `frontend/src/app/features/admin/book-list/confirm-delete-dialog.ts`
+  - [x] Implement standalone component with `mat-dialog-title`, `mat-dialog-content`, `mat-dialog-actions`
+  - [x] Accept `{ id: number; title: string }` via `MAT_DIALOG_DATA`
+  - [x] "Annuler" button: `mat-stroked-button`, `cdkFocusInitial` (focused on dialog open), `mat-dialog-close` (emits `undefined`)
+  - [x] "Supprimer" button: `mat-button`, `color: #B00020` via inline style, closes dialog with `true`
 
-- [ ] Task 3: Implement `onDeleteClick` in `BookList` (AC: #1, #2, #3, #4)
-  - [ ] Inject `MatDialog` and `MatSnackBar` into `BookList`
-  - [ ] Add `MatSnackBarModule` and `ConfirmDeleteDialog` to component `imports`
-  - [ ] Add `deleteError = signal<string | null>(null)` for inline error display
-  - [ ] Replace `onDeleteClick(_book: Book): void {}` stub — open `ConfirmDeleteDialog`, handle result
-  - [ ] On confirm + success: `books.update(list => list.filter(b => b.id !== book.id))`, show snackbar
-  - [ ] On confirm + error: `deleteError.set('Erreur lors de la suppression. Veuillez réessayer.')`
-  - [ ] On cancel: no mutation, focus auto-restored by Angular CDK (built-in)
-  - [ ] Add inline error display to template (`role="alert"`)
-  - [ ] Clear `deleteError` at the start of each new delete attempt
+- [x] Task 3: Implement `onDeleteClick` in `BookList` (AC: #1, #2, #3, #4)
+  - [x] Inject `MatDialog` and `MatSnackBar` into `BookList`
+  - [x] Add `MatSnackBarModule` to component `imports` (ConfirmDeleteDialog excluded — not referenced in template, dialog opened programmatically)
+  - [x] Add `deleteError = signal<string | null>(null)` for inline error display
+  - [x] Replace `onDeleteClick(_book: Book): void {}` stub — open `ConfirmDeleteDialog`, handle result
+  - [x] On confirm + success: `books.update(list => list.filter(b => b.id !== book.id))`, show snackbar
+  - [x] On confirm + error: `deleteError.set('Erreur lors de la suppression. Veuillez réessayer.')`
+  - [x] On cancel: no mutation, focus auto-restored by Angular CDK (built-in)
+  - [x] Add inline error display to template (`role="alert"`)
+  - [x] Clear `deleteError` at the start of each new delete attempt
 
-- [ ] Task 4: Validation
-  - [ ] `ng build` in `frontend/` — 0 errors, 0 warnings
+- [x] Task 4: Validation
+  - [x] `ng build` in `frontend/` — 0 errors, 0 warnings
   - [ ] Manual: tap delete icon → dialog opens with correct title and book title in quotes
   - [ ] Manual: tap "Annuler" → no deletion, dialog closes, focus on delete button
   - [ ] Manual: press Escape → no deletion, dialog closes
@@ -317,12 +317,18 @@ None
 
 ### Completion Notes List
 
-(empty — story not yet implemented)
+- Task 1: Added `delete(id: number): Observable<void>` to `BookService` — single HTTP DELETE call, no import changes needed.
+- Task 2: Created `ConfirmDeleteDialog` standalone component with `mat-dialog-title`, `mat-dialog-content`, `mat-dialog-actions`. "Annuler" uses `cdkFocusInitial` + `mat-dialog-close` (emits undefined). "Supprimer" closes with `true` and uses `style="color: #B00020"` per UX-DR11.
+- Task 3: Replaced `onDeleteClick` stub in `BookList`. Injected `MatDialog` and `MatSnackBar`. Added `deleteError` signal. Dialog opened programmatically — `ConfirmDeleteDialog` excluded from template `imports` array (not referenced in template, would cause NG8113 warning). On success: local signal mutation + snackbar. On error: inline `deleteError` message.
+- Task 4: `ng build` passes — 0 errors, 0 warnings. Manual testing required for dialog UX flows.
 
 ### File List
 
-(empty — story not yet implemented)
+- `frontend/src/app/shared/services/book.service.ts` (modified — added `delete()` method)
+- `frontend/src/app/features/admin/book-list/confirm-delete-dialog.ts` (new file)
+- `frontend/src/app/features/admin/book-list/book-list.ts` (modified — delete flow implemented)
 
 ### Change Log
 
 - 2026-04-24: Story 5.4 created — Delete Book with Confirmation Dialog
+- 2026-04-24: Story 5.4 implemented — `delete()` added to BookService, `ConfirmDeleteDialog` component created, `onDeleteClick` stub replaced with full dialog+snackbar+error flow; `ng build` 0 errors 0 warnings

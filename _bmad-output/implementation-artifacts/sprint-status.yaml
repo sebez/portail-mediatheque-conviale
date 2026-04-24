@@ -88,7 +88,7 @@ development_status:
   5-1-book-crud-api-create-update-delete-endpoints: review
   5-2-admin-book-list-view: review
   5-3-add-and-edit-book-form: review
-  5-4-delete-book-with-confirmation-dialog: ready-for-dev
+  5-4-delete-book-with-confirmation-dialog: review
   epic-5-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PortailMediatheque.Api.Models.DTOs;
 using PortailMediatheque.Api.Services.Interfaces;
@@ -46,5 +47,47 @@ public class BooksController : ControllerBase
                 detail: $"Book with id {id} was not found."
             );
         return Ok(book);
+    }
+
+    // POST /books
+    // [Authorize] — admin only (AC #6)
+    [HttpPost]
+    [Authorize]
+    public async Task<ActionResult<BookDto>> Create([FromBody] CreateBookRequest request)
+    {
+        var book = await _bookService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
+    }
+
+    // PUT /books/{id}
+    // [Authorize] — admin only (AC #6)
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<ActionResult<BookDto>> Update(int id, [FromBody] UpdateBookRequest request)
+    {
+        var book = await _bookService.UpdateAsync(id, request);
+        if (book is null)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Not Found",
+                detail: $"Book with id {id} was not found."
+            );
+        return Ok(book);
+    }
+
+    // DELETE /books/{id}
+    // [Authorize] — admin only (AC #6)
+    [HttpDelete("{id}")]
+    [Authorize]
+    public async Task<ActionResult> Delete(int id)
+    {
+        var deleted = await _bookService.DeleteAsync(id);
+        if (!deleted)
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Not Found",
+                detail: $"Book with id {id} was not found."
+            );
+        return NoContent();
     }
 }

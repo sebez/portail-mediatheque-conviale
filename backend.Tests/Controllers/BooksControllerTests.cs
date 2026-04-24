@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using PortailMediatheque.Api.Data;
 using PortailMediatheque.Api.Models;
 using PortailMediatheque.Api.Models.DTOs;
 using PortailMediatheque.Api.Services;
+using backend.Tests.Services;
 
 namespace backend.Tests.Controllers;
 
@@ -26,7 +28,8 @@ public class BooksControllerTests : IDisposable
             .Options;
         _context = new AppDbContext(options);
         _context.Database.EnsureCreated();
-        _controller = new BooksController(new BookService(_context));
+        _controller = new BooksController(new BookService(_context,
+            new FakeHttpClientFactory(new FakeHttpMessageHandler())));
     }
 
     [Fact]

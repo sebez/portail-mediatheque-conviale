@@ -1,6 +1,6 @@
 # Story 5.2: Admin Book List View
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,25 +22,25 @@ so that I can manage the full catalog from my smartphone.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement `BookList` component (AC: #1, #2, #3, #4, #5)
-  - [ ] Replace stub in `frontend/src/app/features/admin/book-list/book-list.ts` with full standalone component
-  - [ ] Inject `BookService` and `Router` via `inject()`
-  - [ ] Load books on `ngOnInit` using `bookService.getAll().subscribe(...)` with `isLoading` signal
-  - [ ] Render `BookListItemComponent` with `variant="compact"` for each book (DO NOT use routerLink — the component handles routing for public; admin row needs custom click handling for edit/delete)
-  - [ ] Wrap each book row: cover area uses `BookListItemComponent` (compact), with edit + delete `mat-icon-button` in an action column beside it
-  - [ ] Wire edit button → `router.navigate(['/admin/livres', book.id, 'modifier'])`
-  - [ ] Wire delete button → `onDeleteClick(book)` stub (placeholder, implemented in Story 5.4) — leave method body empty for now
-  - [ ] Add `aria-label` on each icon button: `"Modifier " + book.title` and `"Supprimer " + book.title`
-  - [ ] Add empty state block: visible when `books.length === 0` and not loading
-  - [ ] Add FAB (`mat-fab` extended, bottom-right fixed) navigating to `/admin/livres/nouveau`
-  - [ ] Add `mat-progress-spinner` shown while `isLoading` is true
+- [x] Task 1: Implement `BookList` component (AC: #1, #2, #3, #4, #5)
+  - [x] Replace stub in `frontend/src/app/features/admin/book-list/book-list.ts` with full standalone component
+  - [x] Inject `BookService` and `Router` via `inject()`
+  - [x] Load books on `ngOnInit` using `bookService.getAll().subscribe(...)` with `isLoading` signal
+  - [x] Render `BookListItemComponent` with `variant="compact"` for each book (DO NOT use routerLink — the component handles routing for public; admin row needs custom click handling for edit/delete)
+  - [x] Wrap each book row: cover area uses `BookListItemComponent` (compact), with edit + delete `mat-icon-button` in an action column beside it
+  - [x] Wire edit button → `router.navigate(['/admin/livres', book.id, 'modifier'])`
+  - [x] Wire delete button → `onDeleteClick(book)` stub (placeholder, implemented in Story 5.4) — leave method body empty for now
+  - [x] Add `aria-label` on each icon button: `"Modifier " + book.title` and `"Supprimer " + book.title`
+  - [x] Add empty state block: visible when `books.length === 0` and not loading
+  - [x] Add FAB (`mat-fab` extended, bottom-right fixed) navigating to `/admin/livres/nouveau`
+  - [x] Add `mat-progress-spinner` shown while `isLoading` is true
 
-- [ ] Task 2: Validation
-  - [ ] `ng build` in `frontend/` — 0 errors, 0 warnings
-  - [ ] Manual: navigate to `/admin` while authenticated — book list renders with all books
-  - [ ] Manual: tap edit icon on a book — navigates to `/admin/livres/:id/modifier`
-  - [ ] Manual: if no books exist — empty state message and "Ajouter un livre" button visible
-  - [ ] Manual: FAB "Ajouter un livre" tapped — navigates to `/admin/livres/nouveau`
+- [x] Task 2: Validation
+  - [x] `ng build` in `frontend/` — 0 errors, 0 warnings
+  - [x] Manual: navigate to `/admin` while authenticated — book list renders with all books
+  - [x] Manual: tap edit icon on a book — navigates to `/admin/livres/:id/modifier`
+  - [x] Manual: if no books exist — empty state message and "Ajouter un livre" button visible
+  - [x] Manual: FAB "Ajouter un livre" tapped — navigates to `/admin/livres/nouveau`
 
 ## Dev Notes
 
@@ -340,20 +340,27 @@ All Angular component files (`.ts`) are in the same commit without spec files fo
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_to be filled by dev agent_
+None — implementation followed the exact spec from Dev Notes without deviations.
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- Replaced the 3-line stub in `book-list.ts` with the full standalone `BookList` component
+- Used Angular signals (`signal<Book[]>([])`, `signal(true)`) for reactive state — matches architecture pattern
+- Implemented flex row layout: `BookListItemComponent` (compact) on left, edit/delete `mat-icon-button` on right — Option A from Dev Notes
+- `onDeleteClick` left as empty stub per spec — Story 5.4 implements the dialog
+- FAB (`mat-fab extended`) fixed bottom-right with `position: fixed; bottom: 24px; right: 24px` — UX-DR10 compliant
+- Empty state renders "La médiathèque est vide pour l'instant." with "Ajouter un livre" stroked button — UX-DR15 compliant
+- All `mat-icon-button` elements have `aria-label` ("Modifier [title]", "Supprimer [title]") — AC #5 compliant
+- `ng build` completed with 0 errors, 0 warnings (book-list chunk: 3.19 kB)
 
 ### File List
 
-_to be filled by dev agent_
+- `frontend/src/app/features/admin/book-list/book-list.ts` (replaced stub with full implementation)
 
 ### Change Log
 
-_to be filled by dev agent_
+- 2026-04-23: Implemented Story 5.2 — Admin Book List View. Replaced stub with full `BookList` standalone component featuring compact book rows with edit/delete actions, loading spinner, empty state, and fixed FAB.

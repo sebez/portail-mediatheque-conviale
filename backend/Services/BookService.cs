@@ -9,10 +9,12 @@ namespace PortailMediatheque.Api.Services;
 public class BookService : IBookService
 {
     private readonly AppDbContext _context;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public BookService(AppDbContext context)
+    public BookService(AppDbContext context, IHttpClientFactory httpClientFactory)
     {
         _context = context;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<IEnumerable<BookDto>> GetAllAsync(
@@ -63,15 +65,71 @@ public class BookService : IBookService
         return book is null ? null : MapToDto(book);
     }
 
-    // Story 5.1 — not implemented in this story
-    public Task<BookDto> CreateAsync(CreateBookRequest request) =>
-        throw new NotImplementedException("CreateAsync is implemented in Story 5.1");
+    public async Task<BookDto> CreateAsync(CreateBookRequest request)
+    {
+        var book = new Book
+        {
+            Isbn = request.Isbn,
+            Title = request.Title,
+            Author = request.Author,
+            Genre = request.Genre,
+            PublicationYear = request.PublicationYear,
+            CoverImageUrl = await ValidateCoverUrlAsync(request.CoverImageUrl),
+            CuratorNote = request.CuratorNote,
+            DateAdded = DateTime.UtcNow,
+            IsSelectionDuMois = request.IsSelectionDuMois,
+            Status = "available",
+        };
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+        return MapToDto(book);
+    }
 
-    public Task<BookDto?> UpdateAsync(int id, UpdateBookRequest request) =>
-        throw new NotImplementedException("UpdateAsync is implemented in Story 5.1");
+    public async Task<BookDto?> UpdateAsync(int id, UpdateBookRequest request)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book is null) return null;
 
-    public Task<bool> DeleteAsync(int id) =>
-        throw new NotImplementedException("DeleteAsync is implemented in Story 5.1");
+        book.Isbn = request.Isbn;
+        book.Title = request.Title;
+        book.Author = request.Author;
+        book.Genre = request.Genre;
+        book.PublicationYear = request.PublicationYear;
+        book.CoverImageUrl = await ValidateCoverUrlAsync(request.CoverImageUrl);
+        book.CuratorNote = request.CuratorNote;
+        book.IsSelectionDuMois = request.IsSelectionDuMois;
+        book.Status = request.Status;
+        // DateAdded intentionally NOT updated — preserves original add date
+
+        await _context.SaveChangesAsync();
+        return MapToDto(book);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book is null) return false;
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    private async Task<string?> ValidateCoverUrlAsync(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return null;
+        try
+        {
+            using var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(5);
+            var response = await client.SendAsync(
+                new HttpRequestMessage(HttpMethod.Head, url));
+            return response.IsSuccessStatusCode ? url : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     private static BookDto MapToDto(Book book) => new()
     {

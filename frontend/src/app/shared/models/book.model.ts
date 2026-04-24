@@ -19,3 +19,18 @@ export interface FilterCriteria {
   genre: string | null;   // null when no genre selected
   year: number | null;    // null when no year selected
 }
+
+export interface CreateBookRequest {
+  isbn: string;
+  title: string;
+  author: string;
+  genre: string;
+  publicationYear: number;
+  coverImageUrl: string | null;
+  curatorNote: string | null;
+  isSelectionDuMois: boolean;
+}
+
+export interface UpdateBookRequest extends CreateBookRequest {
+  status: string;
+}

@@ -1,6 +1,6 @@
 # Story 5.1: Book CRUD API — Create, Update, Delete Endpoints
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -24,35 +24,35 @@ so that the admin frontend can perform full book management.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Register HTTP client factory in DI (AC: #2)
-  - [ ] In `backend/Program.cs`, add `builder.Services.AddHttpClient();` in the services section (before `var app = builder.Build()`)
+- [x] Task 1: Register HTTP client factory in DI (AC: #2)
+  - [x] In `backend/Program.cs`, add `builder.Services.AddHttpClient();` in the services section (before `var app = builder.Build()`)
 
-- [ ] Task 2: Implement `BookService` CRUD methods (AC: #1, #2, #3, #4, #5)
-  - [ ] Add `IHttpClientFactory` field and update constructor signature: `public BookService(AppDbContext context, IHttpClientFactory httpClientFactory)`
-  - [ ] Add private `ValidateCoverUrlAsync(string? url)` helper — HEAD request, 5s timeout, returns url on 2xx, `null` on error/non-2xx/empty
-  - [ ] Implement `CreateAsync`: map request → `Book` entity, call `ValidateCoverUrlAsync` for `CoverImageUrl`, set `DateAdded = DateTime.UtcNow`, set `Status = "available"`, add to context, save, return `MapToDto`
-  - [ ] Implement `UpdateAsync`: find by id (return `null` if not found), update all mutable fields (Isbn, Title, Author, Genre, PublicationYear, CuratorNote, IsSelectionDuMois, Status), call `ValidateCoverUrlAsync` for `CoverImageUrl`, save, return `MapToDto` — do NOT update `DateAdded`
-  - [ ] Implement `DeleteAsync`: find by id (return `false` if not found), remove from context, save, return `true`
+- [x] Task 2: Implement `BookService` CRUD methods (AC: #1, #2, #3, #4, #5)
+  - [x] Add `IHttpClientFactory` field and update constructor signature: `public BookService(AppDbContext context, IHttpClientFactory httpClientFactory)`
+  - [x] Add private `ValidateCoverUrlAsync(string? url)` helper — HEAD request, 5s timeout, returns url on 2xx, `null` on error/non-2xx/empty
+  - [x] Implement `CreateAsync`: map request → `Book` entity, call `ValidateCoverUrlAsync` for `CoverImageUrl`, set `DateAdded = DateTime.UtcNow`, set `Status = "available"`, add to context, save, return `MapToDto`
+  - [x] Implement `UpdateAsync`: find by id (return `null` if not found), update all mutable fields (Isbn, Title, Author, Genre, PublicationYear, CuratorNote, IsSelectionDuMois, Status), call `ValidateCoverUrlAsync` for `CoverImageUrl`, save, return `MapToDto` — do NOT update `DateAdded`
+  - [x] Implement `DeleteAsync`: find by id (return `false` if not found), remove from context, save, return `true`
 
-- [ ] Task 3: Add POST, PUT, DELETE actions to `BooksController` (AC: #1, #3, #4, #5, #6)
-  - [ ] Add `[HttpPost] [Authorize] Create([FromBody] CreateBookRequest)` → call `CreateAsync`, return `CreatedAtAction(nameof(GetById), new { id = book.Id }, book)` (201 + Location header)
-  - [ ] Add `[HttpPut("{id}")] [Authorize] Update(int id, [FromBody] UpdateBookRequest)` → call `UpdateAsync`, return `Ok(book)` or `Problem(404)` if null
-  - [ ] Add `[HttpDelete("{id}")] [Authorize] Delete(int id)` → call `DeleteAsync`, return `NoContent()` (204) or `Problem(404)` if not found
+- [x] Task 3: Add POST, PUT, DELETE actions to `BooksController` (AC: #1, #3, #4, #5, #6)
+  - [x] Add `[HttpPost] [Authorize] Create([FromBody] CreateBookRequest)` → call `CreateAsync`, return `CreatedAtAction(nameof(GetById), new { id = book.Id }, book)` (201 + Location header)
+  - [x] Add `[HttpPut("{id}")] [Authorize] Update(int id, [FromBody] UpdateBookRequest)` → call `UpdateAsync`, return `Ok(book)` or `Problem(404)` if null
+  - [x] Add `[HttpDelete("{id}")] [Authorize] Delete(int id)` → call `DeleteAsync`, return `NoContent()` (204) or `Problem(404)` if not found
 
-- [ ] Task 4: Update and extend tests (AC: all)
-  - [ ] In `BookServiceTests.cs`: add `FakeHttpMessageHandler` and `FakeHttpClientFactory` helper classes at the bottom of the file
-  - [ ] Update existing test constructor to: `_service = new BookService(_context, new FakeHttpClientFactory(new FakeHttpMessageHandler()));`
-  - [ ] Add `CreateAsync_ValidRequest_SetsDatesAndDefaultStatus` test
-  - [ ] Add `CreateAsync_BrokenCoverUrl_StoresNull` test (factory returns non-2xx)
-  - [ ] Add `CreateAsync_NullCoverUrl_StoresNull` test
-  - [ ] Add `UpdateAsync_ExistingId_UpdatesFieldsAndReturnsDto` test
-  - [ ] Add `UpdateAsync_UnknownId_ReturnsNull` test
-  - [ ] Add `DeleteAsync_ExistingId_RemovesBookAndReturnsTrue` test
-  - [ ] Add `DeleteAsync_UnknownId_ReturnsFalse` test
+- [x] Task 4: Update and extend tests (AC: all)
+  - [x] In `BookServiceTests.cs`: add `FakeHttpMessageHandler` and `FakeHttpClientFactory` helper classes at the bottom of the file
+  - [x] Update existing test constructor to: `_service = new BookService(_context, new FakeHttpClientFactory(new FakeHttpMessageHandler()));`
+  - [x] Add `CreateAsync_ValidRequest_SetsDatesAndDefaultStatus` test
+  - [x] Add `CreateAsync_BrokenCoverUrl_StoresNull` test (factory returns non-2xx)
+  - [x] Add `CreateAsync_NullCoverUrl_StoresNull` test
+  - [x] Add `UpdateAsync_ExistingId_UpdatesFieldsAndReturnsDto` test
+  - [x] Add `UpdateAsync_UnknownId_ReturnsNull` test
+  - [x] Add `DeleteAsync_ExistingId_RemovesBookAndReturnsTrue` test
+  - [x] Add `DeleteAsync_UnknownId_ReturnsFalse` test
 
-- [ ] Task 5: Validation
-  - [ ] `dotnet test` in `backend.Tests/` — all tests pass (no regressions)
-  - [ ] `dotnet build` in `backend/` — 0 errors
+- [x] Task 5: Validation
+  - [x] `dotnet test` in `backend.Tests/` — all tests pass (no regressions)
+  - [x] `dotnet build` in `backend/` — 0 errors
   - [ ] Manual: `POST /api/books` without JWT → 401; with valid JWT → 201 + Location header
   - [ ] Manual: `DELETE /api/books/9999` with valid JWT → 404 ProblemDetails
   - [ ] Manual: `DELETE /api/books/{id}` with valid JWT → 204 no body, book gone from `GET /api/books`
@@ -448,6 +448,22 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+Fixed compilation error in `BooksControllerTests.cs` — that file also instantiated `BookService` with the old single-argument constructor after the DI change. Updated to use `FakeHttpClientFactory` as well.
+
 ### Completion Notes List
 
+Implemented `CreateAsync`, `UpdateAsync`, `DeleteAsync`, and `ValidateCoverUrlAsync` in `BookService`. Added POST, PUT, DELETE actions to `BooksController` with `[Authorize]` on each (GET endpoints remain public). Registered `AddHttpClient()` in DI. Updated both test files to use `FakeHttpClientFactory`/`FakeHttpMessageHandler` test doubles. All 39 tests pass (0 regressions).
+
 ### File List
+
+- backend/Program.cs
+- backend/Controllers/BooksController.cs
+- backend/Services/BookService.cs
+- backend.Tests/Services/BookServiceTests.cs
+- backend.Tests/Controllers/BooksControllerTests.cs
+- _bmad-output/implementation-artifacts/5-1-book-crud-api-create-update-delete-endpoints.md
+- _bmad-output/implementation-artifacts/sprint-status.yaml
+
+### Change Log
+
+- 2026-04-23: Implemented Book CRUD API (Create, Update, Delete) — Story 5.1 complete

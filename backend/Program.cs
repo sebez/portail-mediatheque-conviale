@@ -44,6 +44,8 @@ if (builder.Environment.IsDevelopment())
 // ─── Services ─────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+// ─── HTTP client factory (used by BookService for cover URL validation) ─────
+builder.Services.AddHttpClient();
 
 // ─── Authentication — JWT Bearer ──────────────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"];

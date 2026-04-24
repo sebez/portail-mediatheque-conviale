@@ -1,7 +1,9 @@
+using System.Net;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using PortailMediatheque.Api.Data;
 using PortailMediatheque.Api.Models;
+using PortailMediatheque.Api.Models.DTOs;
 using PortailMediatheque.Api.Services;
 
 namespace backend.Tests.Services;
@@ -24,7 +26,8 @@ public class BookServiceTests : IDisposable
             .Options;
         _context = new AppDbContext(options);
         _context.Database.EnsureCreated();
-        _service = new BookService(_context);
+        _service = new BookService(_context,
+            new FakeHttpClientFactory(new FakeHttpMessageHandler()));
     }
 
     [Fact]
@@ -217,9 +220,149 @@ public class BookServiceTests : IDisposable
         Assert.Empty(result);
     }
 
+    [Fact]
+    public async Task CreateAsync_ValidRequest_SetsDatesAndDefaultStatus()
+    {
+        var request = new CreateBookRequest
+        {
+            Isbn = "978-0-13-235088-4",
+            Title = "An Elegant Puzzle",
+            Author = "Will Larson",
+            Genre = "Management",
+            PublicationYear = 2019,
+        };
+
+        var result = await _service.CreateAsync(request);
+
+        Assert.Equal("An Elegant Puzzle", result.Title);
+        Assert.Equal("available", result.Status);
+        Assert.True(result.DateAdded <= DateTime.UtcNow);
+        Assert.True(result.DateAdded > DateTime.UtcNow.AddSeconds(-5));
+    }
+
+    [Fact]
+    public async Task CreateAsync_BrokenCoverUrl_StoresNull()
+    {
+        var service = new BookService(_context,
+            new FakeHttpClientFactory(new FakeHttpMessageHandler(HttpStatusCode.NotFound)));
+        var request = new CreateBookRequest
+        {
+            Isbn = "111", Title = "T", Author = "A",
+            CoverImageUrl = "https://example.com/broken.jpg"
+        };
+
+        var result = await service.CreateAsync(request);
+
+        Assert.Null(result.CoverImageUrl);
+    }
+
+    [Fact]
+    public async Task CreateAsync_NullCoverUrl_StoresNull()
+    {
+        var request = new CreateBookRequest
+        {
+            Isbn = "333", Title = "T", Author = "A",
+            CoverImageUrl = null
+        };
+
+        var result = await _service.CreateAsync(request);
+
+        Assert.Null(result.CoverImageUrl);
+    }
+
+    [Fact]
+    public async Task CreateAsync_ValidCoverUrl_StoresUrl()
+    {
+        var request = new CreateBookRequest
+        {
+            Isbn = "222", Title = "T", Author = "A",
+            CoverImageUrl = "https://covers.openlibrary.org/b/isbn/9780132350884-M.jpg"
+        };
+
+        var result = await _service.CreateAsync(request);
+
+        Assert.Equal("https://covers.openlibrary.org/b/isbn/9780132350884-M.jpg", result.CoverImageUrl);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ExistingId_UpdatesAllMutableFields()
+    {
+        var book = new Book
+        {
+            Isbn = "old", Title = "Old Title", Author = "Old Author",
+            DateAdded = DateTime.UtcNow.AddDays(-1)
+        };
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+        var originalDateAdded = book.DateAdded;
+
+        var request = new UpdateBookRequest
+        {
+            Isbn = "new-isbn", Title = "New Title", Author = "New Author",
+            Genre = "Fiction", PublicationYear = 2024,
+            IsSelectionDuMois = true, Status = "available"
+        };
+
+        var result = await _service.UpdateAsync(book.Id, request);
+
+        Assert.NotNull(result);
+        Assert.Equal("New Title", result.Title);
+        Assert.Equal("new-isbn", result.Isbn);
+        Assert.Equal("Fiction", result.Genre);
+        Assert.Equal(2024, result.PublicationYear);
+        Assert.True(result.IsSelectionDuMois);
+        Assert.Equal(originalDateAdded, result.DateAdded);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_UnknownId_ReturnsNull()
+    {
+        var result = await _service.UpdateAsync(9999, new UpdateBookRequest
+        {
+            Isbn = "x", Title = "T", Author = "A", Status = "available"
+        });
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ExistingId_RemovesBookAndReturnsTrue()
+    {
+        var book = new Book { Isbn = "del", Title = "To Delete", Author = "A", DateAdded = DateTime.UtcNow };
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+
+        var deleted = await _service.DeleteAsync(book.Id);
+        var found = await _context.Books.FindAsync(book.Id);
+
+        Assert.True(deleted);
+        Assert.Null(found);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_UnknownId_ReturnsFalse()
+    {
+        var deleted = await _service.DeleteAsync(9999);
+
+        Assert.False(deleted);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
         _connection.Dispose();
     }
+}
+
+internal class FakeHttpMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK)
+    : HttpMessageHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, CancellationToken cancellationToken)
+        => Task.FromResult(new HttpResponseMessage(statusCode));
+}
+
+internal class FakeHttpClientFactory(HttpMessageHandler handler) : IHttpClientFactory
+{
+    public HttpClient CreateClient(string name) => new(handler);
 }
