@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-13
-last_updated: 2026-04-23  # story 5-2 ready-for-dev
+last_updated: 2026-04-24  # story 5-3 implemented
 project: portail-mediatheque-conviale
 project_key: NOKEY
 tracking_system: file-system
@@ -86,8 +86,8 @@ development_status:
   # ─────────────────────────────────────────────────────────────────────────────
   epic-5: in-progress
   5-1-book-crud-api-create-update-delete-endpoints: review
-  5-2-admin-book-list-view: ready-for-dev
-  5-3-add-and-edit-book-form: backlog
+  5-2-admin-book-list-view: review
+  5-3-add-and-edit-book-form: review
   5-4-delete-book-with-confirmation-dialog: backlog
   epic-5-retrospective: optional
 
