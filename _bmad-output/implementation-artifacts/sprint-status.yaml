@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-13
-last_updated: 2026-04-24  # story 5-4 created
+last_updated: 2026-04-24  # story 6-1 created
 project: portail-mediatheque-conviale
 project_key: NOKEY
 tracking_system: file-system
@@ -94,8 +94,8 @@ development_status:
   # ─────────────────────────────────────────────────────────────────────────────
   # Epic 6: ISBN Scan & Metadata Auto-Fill
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-6: backlog
-  6-1-backend-isbn-lookup-service-open-library-and-google-books-fallback-chain: backlog
+  epic-6: in-progress
+  6-1-backend-isbn-lookup-service-open-library-and-google-books-fallback-chain: ready-for-dev
   6-2-isbn-scan-overlay-component-browser-barcode-scanner: backlog
   6-3-isbn-auto-fill-integration-in-the-admin-book-form: backlog
   epic-6-retrospective: optional
