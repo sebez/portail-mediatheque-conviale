@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, signal } from '@angular/core';
 import { Subject, switchMap, of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +14,7 @@ import { Book, FilterCriteria } from '../../../shared/models/book.model';
   imports: [BookListItem, SelectionDuMoisCard, MatProgressSpinnerModule, MatButtonModule, FilterBar],
   template: `
     <div class="catalog-container">
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="catalog-loading">
           <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
         </div>
@@ -147,7 +147,7 @@ export class Home implements OnInit {
   availableGenres: string[] = [];
   availableYears: number[] = [];
   hasActiveFilters = false;
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   @ViewChild(FilterBar) filterBar?: FilterBar;
 
@@ -156,7 +156,7 @@ export class Home implements OnInit {
   constructor(private bookService: BookService) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     // Wire filter stream with switchMap to cancel in-flight requests
     this.filterChange$.pipe(
@@ -184,9 +184,9 @@ export class Home implements OnInit {
         this.availableYears = [...new Set(
           books.map(b => b.publicationYear).filter((y): y is number => y != null)
         )].sort((a, b) => b - a);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
-      error: () => { this.isLoading = false; }
+      error: () => { this.isLoading.set(false); }
     });
   }
 
