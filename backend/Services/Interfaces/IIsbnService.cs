@@ -2,9 +2,8 @@ using PortailMediatheque.Api.Models.DTOs;
 
 namespace PortailMediatheque.Api.Services.Interfaces;
 
-// Implemented in Story 6.1
-// Open Library → Google Books fallback chain; NEVER throw on API failure
+// Open Library → Google Books fallback chain; NEVER throw on API failure; NEVER return null
 public interface IIsbnService
 {
-    Task<BookDto?> LookupAsync(string isbn);
+    Task<IsbnLookupDto> LookupAsync(string isbn);
 }

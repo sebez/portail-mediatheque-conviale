@@ -97,5 +97,5 @@ development_status:
   epic-6: in-progress
   6-1-backend-isbn-lookup-service-open-library-and-google-books-fallback-chain: review
   6-2-isbn-scan-overlay-component-browser-barcode-scanner: review
-  6-3-isbn-auto-fill-integration-in-the-admin-book-form: ready-for-dev
+  6-3-isbn-auto-fill-integration-in-the-admin-book-form: review
   epic-6-retrospective: optional

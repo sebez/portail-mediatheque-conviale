@@ -1,6 +1,6 @@
 # Story 6.2: IsbnScanOverlayComponent — Browser Barcode Scanner
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -26,43 +26,43 @@ So that I don't have to type a 13-digit number manually.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Install ZXing-js dependency (AC: #3)
-  - [ ] Run `npm install @zxing/browser` in `frontend/` — installs `@zxing/library` as a dependency automatically
-  - [ ] Confirm `@zxing/browser` appears in `frontend/package.json` dependencies
+- [x] Task 1: Install ZXing-js dependency (AC: #3)
+  - [x] Run `npm install @zxing/browser` in `frontend/` — installs `@zxing/library` as a dependency automatically
+  - [x] Confirm `@zxing/browser` appears in `frontend/package.json` dependencies
 
-- [ ] Task 2: Implement `IsbnScanOverlay` component (AC: #1–#7)
-  - [ ] Replace placeholder in `frontend/src/app/shared/components/isbn-scan-overlay/isbn-scan-overlay.ts`
-  - [ ] Keep selector `app-isbn-scan-overlay`, keep `@Output() isbnDetected = new EventEmitter<string>()`
-  - [ ] Add `@Output() manualEntryRequested = new EventEmitter<void>()`
-  - [ ] Full-screen overlay: `position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000`
-  - [ ] `<video>` element for camera feed, auto-play, muted, `playsinline` (required on iOS)
-  - [ ] Viewfinder: centered square with terracotta (`#B85C38`) animated corner borders (L-shaped SVG or CSS borders)
-  - [ ] Animated scan line: horizontal bar moving top→bottom in loop within viewfinder
-  - [ ] Guide text: "Pointez vers le code-barres ISBN"
-  - [ ] Secondary button: "Saisir l'ISBN manuellement" (`mat-stroked-button`)
-  - [ ] State machine with signals: `scanState = signal<'scanning'|'success'|'error'|'timeout-hint'>('scanning')`
-  - [ ] Success state: green overlay flash (`#386A20` background tint) + ✓ icon + ISBN text for 1 second, then emit `isbnDetected(isbn)` and call `stopCamera()`
-  - [ ] Error state: show "Impossible d'accéder à la caméra. Vérifiez les permissions." + auto-emit `manualEntryRequested` after 2 seconds
-  - [ ] 30-second timeout: use `setTimeout` in `ngOnInit`, show hint text, do NOT stop scanning
-  - [ ] `aria-live="polite"` region for all state feedback messages
-  - [ ] Implement `ngOnInit`: call `startCamera()` — detect BarcodeDetector vs ZXing, start video stream
-  - [ ] Implement `ngOnDestroy`: call `stopCamera()` — stop all media tracks, cancel animation frame, stop ZXing reader
-  - [ ] BarcodeDetector path: `requestAnimationFrame` loop calling `detector.detect(videoEl)` — scan for `ean_13`, `ean_8` formats
-  - [ ] ZXing path: `BrowserMultiFormatReader.decodeFromVideoDevice(undefined, videoEl, callback)` — store controls ref for cleanup
-  - [ ] `navigator.vibrate(200)` on success (wrapped in try/catch — not available on all browsers)
+- [x] Task 2: Implement `IsbnScanOverlay` component (AC: #1–#7)
+  - [x] Replace placeholder in `frontend/src/app/shared/components/isbn-scan-overlay/isbn-scan-overlay.ts`
+  - [x] Keep selector `app-isbn-scan-overlay`, keep `@Output() isbnDetected = new EventEmitter<string>()`
+  - [x] Add `@Output() manualEntryRequested = new EventEmitter<void>()`
+  - [x] Full-screen overlay: `position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000`
+  - [x] `<video>` element for camera feed, auto-play, muted, `playsinline` (required on iOS)
+  - [x] Viewfinder: centered square with terracotta (`#B85C38`) animated corner borders (L-shaped SVG or CSS borders)
+  - [x] Animated scan line: horizontal bar moving top→bottom in loop within viewfinder
+  - [x] Guide text: "Pointez vers le code-barres ISBN"
+  - [x] Secondary button: "Saisir l'ISBN manuellement" (`mat-stroked-button`)
+  - [x] State machine with signals: `scanState = signal<'scanning'|'success'|'error'|'timeout-hint'>('scanning')`
+  - [x] Success state: green overlay flash (`#386A20` background tint) + ✓ icon + ISBN text for 1 second, then emit `isbnDetected(isbn)` and call `stopCamera()`
+  - [x] Error state: show "Impossible d'accéder à la caméra. Vérifiez les permissions." + auto-emit `manualEntryRequested` after 2 seconds
+  - [x] 30-second timeout: use `setTimeout` in `ngOnInit`, show hint text, do NOT stop scanning
+  - [x] `aria-live="polite"` region for all state feedback messages
+  - [x] Implement `ngOnInit`: call `startCamera()` — detect BarcodeDetector vs ZXing, start video stream
+  - [x] Implement `ngOnDestroy`: call `stopCamera()` — stop all media tracks, cancel animation frame, stop ZXing reader
+  - [x] BarcodeDetector path: `requestAnimationFrame` loop calling `detector.detect(videoEl)` — scan for `ean_13`, `ean_8` formats
+  - [x] ZXing path: `BrowserMultiFormatReader.decodeFromVideoDevice(undefined, videoEl, callback)` — store controls ref for cleanup
+  - [x] `navigator.vibrate(200)` on success (wrapped in try/catch — not available on all browsers)
 
-- [ ] Task 3: Write unit tests (AC: all)
-  - [ ] Create `frontend/src/app/shared/components/isbn-scan-overlay/isbn-scan-overlay.spec.ts`
-  - [ ] Mock `navigator.mediaDevices.getUserMedia` to return a fake stream (via `vi.stubGlobal`)
-  - [ ] Test: overlay renders with `position: fixed` in scanning state (AC #1)
-  - [ ] Test: `isbnDetected` emitted with ISBN string after scan success (AC #2)
-  - [ ] Test: `manualEntryRequested` emitted when manual button clicked (AC #6)
-  - [ ] Test: error state shown and `manualEntryRequested` auto-emitted when getUserMedia fails (AC #4)
-  - [ ] Test: `aria-live="polite"` region exists (AC #7)
+- [x] Task 3: Write unit tests (AC: all)
+  - [x] Create `frontend/src/app/shared/components/isbn-scan-overlay/isbn-scan-overlay.spec.ts`
+  - [x] Mock `navigator.mediaDevices.getUserMedia` to return a fake stream (via `vi.stubGlobal`)
+  - [x] Test: overlay renders with `position: fixed` in scanning state (AC #1)
+  - [x] Test: `isbnDetected` emitted with ISBN string after scan success (AC #2)
+  - [x] Test: `manualEntryRequested` emitted when manual button clicked (AC #6)
+  - [x] Test: error state shown and `manualEntryRequested` auto-emitted when getUserMedia fails (AC #4)
+  - [x] Test: `aria-live="polite"` region exists (AC #7)
 
-- [ ] Task 4: Validation
-  - [ ] `ng build` passes — 0 errors (TypeScript strict, no `any` unless unavoidable for BarcodeDetector)
-  - [ ] `ng test` passes — no regressions in existing tests
+- [x] Task 4: Validation
+  - [x] `ng build` passes — 0 errors (TypeScript strict, no `any` unless unavoidable for BarcodeDetector)
+  - [x] `ng test` passes — no regressions in existing tests
   - [ ] Manual: open admin book form on Chrome/Android → tap "Scanner" → camera opens → scan ISBN barcode → overlay closes, ISBN emitted
   - [ ] Manual: open on Safari iOS → ZXing fallback used → same UX
 
@@ -626,4 +626,21 @@ None
 
 ### Completion Notes List
 
+- Installed `@zxing/browser@^0.1.5` as fallback scanner for Safari iOS (AC #3)
+- Replaced placeholder `isbn-scan-overlay.ts` with full standalone Angular 21 component using signals for state management
+- BarcodeDetector primary path (Chromium) + ZXing `BrowserMultiFormatReader` fallback path wired via `'BarcodeDetector' in window` check
+- Full-screen overlay with terracotta viewfinder corners and animated scan line implemented per UX spec
+- `@ViewChild` used for `<video>` element reference (acceptable per architecture notes)
+- 5 unit tests passing: overlay renders, aria-live region, manual button emits, success flash emits ISBN after 1s, error state auto-emits after 2s
+- Test discovery: Angular `EventEmitter.subscribe()` is unreliable in this Vitest+zoneless env — used `vi.spyOn(emitter, 'emit')` instead; `vi.advanceTimersByTime()` (sync) required over async variant due to test runner behavior
+
 ### File List
+
+- `frontend/src/app/shared/components/isbn-scan-overlay/isbn-scan-overlay.ts` (modified — placeholder replaced with full implementation)
+- `frontend/src/app/shared/components/isbn-scan-overlay/isbn-scan-overlay.spec.ts` (new — 5 unit tests)
+- `frontend/package.json` (modified — `@zxing/browser` dependency added)
+- `frontend/package-lock.json` (modified — lock file updated)
+
+## Change Log
+
+- 2026-04-25: Story 6.2 implemented — `IsbnScanOverlay` component fully implemented with BarcodeDetector + ZXing fallback, 5 unit tests, `ng build` and `ng test` passing (57 tests, 0 regressions)

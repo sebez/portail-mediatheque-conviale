@@ -44,6 +44,7 @@ if (builder.Environment.IsDevelopment())
 // ─── Services ─────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IIsbnService, IsbnService>();
 // ─── HTTP client factory (used by BookService for cover URL validation) ─────
 builder.Services.AddHttpClient();
 

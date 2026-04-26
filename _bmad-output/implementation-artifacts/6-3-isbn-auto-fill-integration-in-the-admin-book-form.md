@@ -1,6 +1,6 @@
 # Story 6.3: ISBN Auto-Fill Integration in the Admin Book Form
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,53 +22,53 @@ So that I can add a new book in under 60 seconds with minimal typing.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add Scanner button and Rechercher button to the ISBN row in `book-form.ts` (AC: #1, #4)
-  - [ ] Add `#isbnInput` template ref to the ISBN `<input>` element
-  - [ ] Add a `<button mat-stroked-button>` "Scanner" that sets `showScanner.set(true)`
-  - [ ] Add a `<button mat-stroked-button>` "Rechercher" that calls `onLookupIsbn()` — disabled when `isIsbnLookingUp()` is true
-  - [ ] Show inline `<mat-progress-spinner diameter="16">` inside the "Rechercher" button while `isIsbnLookingUp()` is true
+- [x] Task 1: Add Scanner button and Rechercher button to the ISBN row in `book-form.ts` (AC: #1, #4)
+  - [x] Add `#isbnInput` template ref to the ISBN `<input>` element
+  - [x] Add a `<button mat-stroked-button>` "Scanner" that sets `showScanner.set(true)`
+  - [x] Add a `<button mat-stroked-button>` "Rechercher" that calls `onLookupIsbn()` — disabled when `isIsbnLookingUp()` is true
+  - [x] Show inline `<mat-progress-spinner diameter="16">` inside the "Rechercher" button while `isIsbnLookingUp()` is true
 
-- [ ] Task 2: Wire `IsbnScanOverlay` into `BookForm` (AC: #1, #3)
-  - [ ] Add `showScanner = signal(false)` signal
-  - [ ] Add `@if (showScanner()) { <app-isbn-scan-overlay ... /> }` at the end of the form template (outside the `<form>` tag, inside the host)
-  - [ ] Bind `(isbnDetected)="onIsbnDetected($event)"` and `(manualEntryRequested)="onManualEntryRequested()"`
-  - [ ] Import `IsbnScanOverlay` in the component's `imports` array
+- [x] Task 2: Wire `IsbnScanOverlay` into `BookForm` (AC: #1, #3)
+  - [x] Add `showScanner = signal(false)` signal
+  - [x] Add `@if (showScanner()) { <app-isbn-scan-overlay ... /> }` at the end of the form template (outside the `<form>` tag, inside the host)
+  - [x] Bind `(isbnDetected)="onIsbnDetected($event)"` and `(manualEntryRequested)="onManualEntryRequested()"`
+  - [x] Import `IsbnScanOverlay` in the component's `imports` array
 
-- [ ] Task 3: Implement `runIsbnLookup(isbn)` and related handlers (AC: #1, #2, #3, #4)
-  - [ ] Inject `IsbnService` via `inject(IsbnService)`
-  - [ ] Add `isIsbnLookingUp = signal(false)`, `autoFilledFields = signal<Set<string>>(new Set())`, `showLookupError = signal(false)`
-  - [ ] Implement `onIsbnDetected(isbn: string)`: close overlay, set ISBN field value, call `runIsbnLookup(isbn)`
-  - [ ] Implement `onManualEntryRequested()`: close overlay, `setTimeout(() => isbnInputRef()?.nativeElement.focus())`
-  - [ ] Implement `onLookupIsbn()`: read `form.get('isbn')?.value?.trim()`, call `runIsbnLookup()` if non-empty
-  - [ ] Implement `runIsbnLookup(isbn)`: set `isIsbnLookingUp(true)`, call `isbnService.lookup(isbn).subscribe(...)`:
+- [x] Task 3: Implement `runIsbnLookup(isbn)` and related handlers (AC: #1, #2, #3, #4)
+  - [x] Inject `IsbnService` via `inject(IsbnService)`
+  - [x] Add `isIsbnLookingUp = signal(false)`, `autoFilledFields = signal<Set<string>>(new Set())`, `showLookupError = signal(false)`
+  - [x] Implement `onIsbnDetected(isbn: string)`: close overlay, set ISBN field value, call `runIsbnLookup(isbn)`
+  - [x] Implement `onManualEntryRequested()`: close overlay, `setTimeout(() => isbnInputRef()?.nativeElement.focus())`
+  - [x] Implement `onLookupIsbn()`: read `form.get('isbn')?.value?.trim()`, call `runIsbnLookup()` if non-empty
+  - [x] Implement `runIsbnLookup(isbn)`: set `isIsbnLookingUp(true)`, call `isbnService.lookup(isbn).subscribe(...)`:
     - On next: patch non-null fields only (title, author, genre, publicationYear, coverImageUrl), track which in `autoFilledFields`, after 2s clear set and focus curatorNote; if no fields filled show `showLookupError`
     - On error: `isIsbnLookingUp(false)`, `showLookupError(true)`
 
-- [ ] Task 4: Add auto-fill field highlighting (AC: #2)
-  - [ ] Add `[class.isbn-auto-filled]="autoFilledFields().has('title')"` (etc.) to each `mat-form-field`
-  - [ ] Add CSS: `.isbn-auto-filled ::ng-deep input, .isbn-auto-filled ::ng-deep textarea { background: #F4E4DC; transition: background 2s ease; }`
-  - [ ] After `autoFilledFields.set(new Set())` the CSS transition removes the background automatically
+- [x] Task 4: Add auto-fill field highlighting (AC: #2)
+  - [x] Add `[class.isbn-auto-filled]="autoFilledFields().has('title')"` (etc.) to each `mat-form-field`
+  - [x] Add CSS: `.isbn-auto-filled ::ng-deep .mat-mdc-form-field-input-control { background: #F4E4DC; transition: background 2s ease; }`
+  - [x] After `autoFilledFields.set(new Set())` the CSS transition removes the background automatically
 
-- [ ] Task 5: Add error banner and focus on curatorNote (AC: #2, #3)
-  - [ ] Add `#curatorNoteInput` template ref to the `<textarea>` for curatorNote
-  - [ ] Add `viewChild<ElementRef<HTMLTextAreaElement>>('curatorNoteInput')` in class
-  - [ ] After 2s highlight: `this.curatorNoteRef()?.nativeElement.focus()`
-  - [ ] Add `@if (showLookupError())` banner with terracotta-tinted style: "Impossible de récupérer les métadonnées. Saisissez les informations manuellement."
+- [x] Task 5: Add error banner and focus on curatorNote (AC: #2, #3)
+  - [x] Add `#curatorNoteInput` template ref to the `<textarea>` for curatorNote
+  - [x] Add `viewChild<ElementRef<HTMLTextAreaElement>>('curatorNoteInput')` in class
+  - [x] After 2s highlight: `this.curatorNoteRef()?.nativeElement.focus()`
+  - [x] Add `@if (showLookupError())` banner with terracotta-tinted style: "Impossible de récupérer les métadonnées. Saisissez les informations manuellement."
 
-- [ ] Task 6: Write unit tests (AC: all)
-  - [ ] Create `frontend/src/app/features/admin/book-form/book-form.spec.ts`
-  - [ ] Mock `IsbnService` with `vi.fn()` returning `of(partialBook)` or `of({})` as needed
-  - [ ] Mock `BookService` and `ActivatedRoute` (no bookId for add mode)
-  - [ ] Test: Scanner button click sets `showScanner` to true
-  - [ ] Test: `onIsbnDetected('9780374275631')` → closes overlay, sets ISBN field, calls isbn.service.lookup
-  - [ ] Test: `onManualEntryRequested()` → closes overlay
-  - [ ] Test: `runIsbnLookup` with full data → patches form, sets `autoFilledFields`
-  - [ ] Test: `runIsbnLookup` with empty data → `showLookupError` is true
-  - [ ] Test: "Rechercher" button calls `onLookupIsbn()`
+- [x] Task 6: Write unit tests (AC: all)
+  - [x] Create `frontend/src/app/features/admin/book-form/book-form.spec.ts`
+  - [x] Mock `IsbnService` with `vi.fn()` returning `of(partialBook)` or `of({})` as needed
+  - [x] Mock `BookService` and `ActivatedRoute` (no bookId for add mode)
+  - [x] Test: Scanner button click sets `showScanner` to true
+  - [x] Test: `onIsbnDetected('9780374275631')` → closes overlay, sets ISBN field, calls isbn.service.lookup
+  - [x] Test: `onManualEntryRequested()` → closes overlay
+  - [x] Test: `runIsbnLookup` with full data → patches form, sets `autoFilledFields`
+  - [x] Test: `runIsbnLookup` with empty data → `showLookupError` is true
+  - [x] Test: "Rechercher" button calls `onLookupIsbn()`
 
-- [ ] Task 7: Validation
-  - [ ] `ng build` passes — 0 errors
-  - [ ] `ng test` passes — no regressions (currently 57 tests)
+- [x] Task 7: Validation
+  - [x] `ng build` passes — 0 errors
+  - [x] `ng test` passes — 65 tests pass (57 existing + 8 new), no regressions
   - [ ] Manual: scan ISBN → overlay opens → barcode detected → overlay closes → form auto-filled → fields highlighted 2s → focus on curatorNote
   - [ ] Manual: type ISBN → tap Rechercher → spinner → form auto-filled
   - [ ] Manual: both APIs down (mock) → banner appears, form submittable
@@ -533,6 +533,15 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+- `fakeAsync`/`tick` unavailable in this zoneless Vitest environment. Used `vi.useFakeTimers()` + `vi.advanceTimersByTime()` for setTimeout-based tests instead (pattern from Story 6.2).
+
 ### Completion Notes List
 
+- Modified `book-form.ts`: added ISBN row with Rechercher + Scanner buttons, wired `IsbnScanOverlay`, implemented `runIsbnLookup()` with signal-based state, auto-fill highlighting with `#F4E4DC` background transition, error banner, and focus on curatorNote after 2s.
+- Created `book-form.spec.ts`: 8 tests covering all ACs — scanner overlay toggle, `onIsbnDetected`, `onManualEntryRequested`, lookup with full data (including timer advance), empty data error banner, HTTP error, and Rechercher button wiring.
+- `ng build`: 0 errors. `ng test`: 65/65 tests pass (57 existing + 8 new).
+
 ### File List
+
+- `frontend/src/app/features/admin/book-form/book-form.ts` (modified)
+- `frontend/src/app/features/admin/book-form/book-form.spec.ts` (new)

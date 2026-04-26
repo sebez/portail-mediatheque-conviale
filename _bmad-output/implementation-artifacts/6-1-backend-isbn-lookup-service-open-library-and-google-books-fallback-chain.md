@@ -1,6 +1,6 @@
 # Story 6.1: Backend ISBN Lookup Service — Open Library & Google Books Fallback Chain
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -24,51 +24,51 @@ So that the admin form can be auto-filled without exposing API keys to the brows
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create `IsbnLookupDto` (AC: #1, #2, #3)
-  - [ ] Create new file `backend/Models/DTOs/IsbnLookupDto.cs` — all fields nullable except `Isbn`
-  - [ ] Fields: `string Isbn`, `string? Title`, `string? Author`, `string? Genre`, `int? PublicationYear`, `string? CoverImageUrl`
+- [x] Task 1: Create `IsbnLookupDto` (AC: #1, #2, #3)
+  - [x] Create new file `backend/Models/DTOs/IsbnLookupDto.cs` — all fields nullable except `Isbn`
+  - [x] Fields: `string Isbn`, `string? Title`, `string? Author`, `string? Genre`, `int? PublicationYear`, `string? CoverImageUrl`
 
-- [ ] Task 2: Update `IIsbnService` interface (AC: #1, #3)
-  - [ ] Modify `backend/Services/Interfaces/IIsbnService.cs` — change return type from `Task<BookDto?>` to `Task<IsbnLookupDto>` (never returns null — always returns at minimum `{ isbn: "..." }`)
-  - [ ] Add `using PortailMediatheque.Api.Models.DTOs;` if not present; remove `BookDto?` reference
+- [x] Task 2: Update `IIsbnService` interface (AC: #1, #3)
+  - [x] Modify `backend/Services/Interfaces/IIsbnService.cs` — change return type from `Task<BookDto?>` to `Task<IsbnLookupDto>` (never returns null — always returns at minimum `{ isbn: "..." }`)
+  - [x] Add `using PortailMediatheque.Api.Models.DTOs;` if not present; remove `BookDto?` reference
 
-- [ ] Task 3: Implement `IsbnService` (AC: #1, #2, #3, #4, #5)
-  - [ ] Create `backend/Services/IsbnService.cs` implementing `IIsbnService`
-  - [ ] Inject `IHttpClientFactory` and `IConfiguration` via constructor
-  - [ ] Read `GOOGLE_BOOKS_API_KEY` from `IConfiguration` in constructor — store as nullable `string?`
-  - [ ] Implement `LookupAsync(string isbn)`: try Open Library (5s timeout) → if no data try Google Books (5s timeout) → return empty DTO on both failure — **never throw**
-  - [ ] Implement `LookupOpenLibraryAsync(string isbn)` — parse JSON, extract fields, validate cover URL
-  - [ ] Implement `LookupGoogleBooksAsync(string isbn)` — parse JSON, extract fields, validate cover URL
-  - [ ] Implement `ValidateCoverUrlAsync(string? url)` — HTTP HEAD check, 5s timeout, return null on failure
-  - [ ] Implement `ExtractYear(string? dateString)` — regex `\b(\d{4})\b` to extract 4-digit year from strings like "2019", "April 2019", "2019-01-15"
-  - [ ] Wrap each API call in try/catch — on any exception (timeout, parse error, network) → silently continue to next step
+- [x] Task 3: Implement `IsbnService` (AC: #1, #2, #3, #4, #5)
+  - [x] Create `backend/Services/IsbnService.cs` implementing `IIsbnService`
+  - [x] Inject `IHttpClientFactory` and `IConfiguration` via constructor
+  - [x] Read `GOOGLE_BOOKS_API_KEY` from `IConfiguration` in constructor — store as nullable `string?`
+  - [x] Implement `LookupAsync(string isbn)`: try Open Library (5s timeout) → if no data try Google Books (5s timeout) → return empty DTO on both failure — **never throw**
+  - [x] Implement `LookupOpenLibraryAsync(string isbn)` — parse JSON, extract fields, validate cover URL
+  - [x] Implement `LookupGoogleBooksAsync(string isbn)` — parse JSON, extract fields, validate cover URL
+  - [x] Implement `ValidateCoverUrlAsync(string? url)` — HTTP HEAD check, 5s timeout, return null on failure
+  - [x] Implement `ExtractYear(string? dateString)` — regex `\b(\d{4})\b` to extract 4-digit year from strings like "2019", "April 2019", "2019-01-15"
+  - [x] Wrap each API call in try/catch — on any exception (timeout, parse error, network) → silently continue to next step
 
-- [ ] Task 4: Create `IsbnController` (AC: #1, #6)
-  - [ ] Create `backend/Controllers/IsbnController.cs`
-  - [ ] Route: `[Route("[controller]")]` → maps to `/isbn` (nginx strips `/api` prefix)
-  - [ ] `[ApiController]` + `[Authorize]` at controller level — ALL endpoints require JWT
-  - [ ] Inject `IIsbnService` via constructor
-  - [ ] `[HttpGet("{isbn}")] GetByIsbnAsync(string isbn)` → `return Ok(await _isbnService.LookupAsync(isbn))`
+- [x] Task 4: Create `IsbnController` (AC: #1, #6)
+  - [x] Create `backend/Controllers/IsbnController.cs`
+  - [x] Route: `[Route("[controller]")]` → maps to `/isbn` (nginx strips `/api` prefix)
+  - [x] `[ApiController]` + `[Authorize]` at controller level — ALL endpoints require JWT
+  - [x] Inject `IIsbnService` via constructor
+  - [x] `[HttpGet("{isbn}")] GetByIsbnAsync(string isbn)` → `return Ok(await _isbnService.LookupAsync(isbn))`
 
-- [ ] Task 5: Register `IsbnService` in DI (AC: #1)
-  - [ ] In `backend/Program.cs`, add `builder.Services.AddScoped<IIsbnService, IsbnService>();` after existing service registrations
-  - [ ] Note: `AddHttpClient()` is ALREADY registered — do NOT add it again
+- [x] Task 5: Register `IsbnService` in DI (AC: #1)
+  - [x] In `backend/Program.cs`, add `builder.Services.AddScoped<IIsbnService, IsbnService>();` after existing service registrations
+  - [x] Note: `AddHttpClient()` is ALREADY registered — do NOT add it again
 
-- [ ] Task 6: Add `.env.example` note (AC: #4)
-  - [ ] Verify `GOOGLE_BOOKS_API_KEY=your-google-books-api-key` is already in `.env.example` — it is, no change needed
+- [x] Task 6: Add `.env.example` note (AC: #4)
+  - [x] Verify `GOOGLE_BOOKS_API_KEY=your-google-books-api-key` is already in `.env.example` — it is, no change needed
 
-- [ ] Task 7: Write xUnit tests (AC: all)
-  - [ ] Create `backend.Tests/Services/IsbnServiceTests.cs`
-  - [ ] Create `FakeIsbnHttpMessageHandler` that returns different responses based on URL pattern
-  - [ ] Test: `LookupAsync_OpenLibraryReturnsFullData_ReturnsFilledDto`
-  - [ ] Test: `LookupAsync_OpenLibraryEmpty_FallsBackToGoogleBooks_ReturnsGoogleData`
-  - [ ] Test: `LookupAsync_BothApisReturnEmpty_ReturnsIsbnOnlyDto`
-  - [ ] Test: `LookupAsync_BrokenCoverUrl_ReturnsCoverUrlNull`
-  - [ ] Test: `LookupAsync_OpenLibraryThrows_FallsBackToGoogleBooks`
+- [x] Task 7: Write xUnit tests (AC: all)
+  - [x] Create `backend.Tests/Services/IsbnServiceTests.cs`
+  - [x] Create `FakeIsbnHttpMessageHandler` that returns different responses based on URL pattern
+  - [x] Test: `LookupAsync_OpenLibraryReturnsFullData_ReturnsFilledDto`
+  - [x] Test: `LookupAsync_OpenLibraryEmpty_FallsBackToGoogleBooks_ReturnsGoogleData`
+  - [x] Test: `LookupAsync_BothApisReturnEmpty_ReturnsIsbnOnlyDto`
+  - [x] Test: `LookupAsync_BrokenCoverUrl_ReturnsCoverUrlNull`
+  - [x] Test: `LookupAsync_OpenLibraryThrows_FallsBackToGoogleBooks`
 
-- [ ] Task 8: Validation
-  - [ ] `dotnet build` in `backend/` — 0 errors
-  - [ ] `dotnet test` in `backend.Tests/` — all tests pass (no regressions)
+- [x] Task 8: Validation
+  - [x] `dotnet build` in `backend/` — 0 errors
+  - [x] `dotnet test` in `backend.Tests/` — all tests pass (no regressions)
   - [ ] Manual: `GET /api/isbn/9780374275631` without JWT → 401
   - [ ] Manual: `GET /api/isbn/9780374275631` with JWT → 200 with metadata (or 200 with `isbn` only if OL/GB unavailable)
 
@@ -600,12 +600,26 @@ None
 
 ### Completion Notes List
 
-(to be filled by dev agent)
+- Created `IsbnLookupDto` with all nullable fields except `Isbn` (AC #1–#3)
+- Updated `IIsbnService` interface: return type changed from `Task<BookDto?>` to `Task<IsbnLookupDto>` (AC #1, #3)
+- Implemented `IsbnService` with full Open Library → Google Books fallback chain (AC #1–#5): 5s timeouts per API, `ValidateCoverUrlAsync` HEAD check, `ExtractYear` regex, all exceptions silently caught
+- Created `IsbnController` with `[Authorize]` at controller level, `[Route("[controller]")]` → `/isbn` (AC #1, #6)
+- Registered `IsbnService` as `AddScoped` in `Program.cs` — did NOT re-add `AddHttpClient()` (AC #1)
+- Confirmed `GOOGLE_BOOKS_API_KEY` already in `.env.example` (AC #4)
+- Created 5 xUnit tests using `FakeIsbnHttpMessageHandler` (URL-aware, longest-pattern-first matching) reusing `FakeHttpClientFactory` from `BookServiceTests.cs`
+- Fixed `FakeIsbnHttpMessageHandler` to sort patterns by length descending — prevents `"openlibrary.org"` from matching before `"covers.openlibrary.org"` in the broken-cover test
+- Build: 0 errors, 0 warnings; Tests: 44 passed, 0 failed (39 pre-existing + 5 new)
 
 ### File List
 
-(to be filled by dev agent)
+- `backend/Models/DTOs/IsbnLookupDto.cs` (NEW)
+- `backend/Services/Interfaces/IIsbnService.cs` (MODIFIED — return type)
+- `backend/Services/IsbnService.cs` (NEW)
+- `backend/Controllers/IsbnController.cs` (NEW)
+- `backend/Program.cs` (MODIFIED — added 1 line)
+- `backend.Tests/Services/IsbnServiceTests.cs` (NEW)
 
 ### Change Log
 
 - 2026-04-24: Story 6.1 created — Backend ISBN Lookup Service — Open Library & Google Books Fallback Chain
+- 2026-04-25: Story 6.1 implemented — 4 new files, 2 modified; 5 tests added; 44/44 tests passing; status → review
