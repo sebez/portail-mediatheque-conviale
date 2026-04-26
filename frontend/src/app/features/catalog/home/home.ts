@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, signal, ChangeDetectorRef } from '@angular/core';
 import { Subject, switchMap, of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -153,7 +153,7 @@ export class Home implements OnInit {
 
   private filterChange$ = new Subject<FilterCriteria>();
 
-  constructor(private bookService: BookService) {}
+  constructor(private bookService: BookService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.isLoading.set(true);
@@ -167,6 +167,7 @@ export class Home implements OnInit {
       })
     ).subscribe(books => {
       this.filteredBooks = books;
+      this.cdr.detectChanges();
     });
 
     this.bookService.getAll().subscribe({
